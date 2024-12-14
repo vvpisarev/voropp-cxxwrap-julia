@@ -31,4 +31,12 @@
 *.out
 *.app
 
+# Folders generated after running cmake
 build
+CMakeFiles
+lib
+
+#Files generated after running cmake
+cmake_install.cmake
+CMakeCache.*
+Makefile
