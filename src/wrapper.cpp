@@ -112,7 +112,8 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("draw_particles_pov", static_cast<void (container::*)(const char*)>(&container::draw_particles_pov))
         .method("draw_cells_gnuplot", static_cast<void (container::*)(const char*)>(&container::draw_cells_gnuplot))
         .method("print_custom!", static_cast<void (container::*)(const char*, const char*)>(&container::print_custom))
-        .method("draw_cells_pov!", static_cast<void (container::*)(const char*)>(&container::draw_cells_pov));
+        .method("draw_cells_pov!", static_cast<void (container::*)(const char*)>(&container::draw_cells_pov))
+        .method("find_voronoi_cell", [] (container &con, double x, double y, double z, double &rx, double &ry, double &rz, int &pid){return con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);});
 
 
     // Class Container Poly
@@ -127,11 +128,12 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("conp_draw_cells_pov!", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_pov));
 
 
-    mod.add_type<c_loop_all>("ContainerIterator")
+    mod.add_type<c_loop_all>("Container_Iterator")
         .constructor<container&>()
         .constructor<container_poly&>()
         .method("start!", &c_loop_all::start)
-        .method("next!", &c_loop_all::inc);
+        .method("next!", &c_loop_all::inc)
+        .method("pos", [] (c_loop_all &cla, int &pid, double &x, double &y, double &z, double &r){cla.pos(pid, x, y, z, r);});
 
 
     // Class VoronoiCell
