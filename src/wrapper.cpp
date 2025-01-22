@@ -40,6 +40,17 @@ double* get_pts(voro::voronoicell& v)
     return v.pts;
 }
 
+
+/* Get and Set methods for accessing public members from container class container.hh */
+
+int get_particle_id(voro::container& con, int i, int j) {
+
+    return con.id[i][j];
+}
+
+
+/* Extern Method for special cases Voronoicell */
+
 extern "C" {
 
     void draw_gnuplot_voronoicell(voro::voronoicell* vc, double x, double y, double z, FILE *fp) { vc->draw_gnuplot(x, y, z, fp); }
@@ -73,7 +84,7 @@ extern "C" {
     // Version implemented from Voro++  >>>  inline void output_face_vertices(FILE *fp=stdout), ignoring stdout by default
     void output_face_vertices_vorocell(voro::voronoicell* vc, FILE *fp) { vc->output_face_vertices(fp); }
 
-    bool compute_ghost_cell_conprdply(voro::container_periodic_poly* con, voro::voronoicell c, double x, double y, double z, double r) {
+    bool compute_ghost_cell_conprdply(voro::container_periodic_poly* con, voro::voronoicell* c, double x, double y, double z, double r) {
 
         return con->compute_ghost_cell(c, x, y, z, r);
     }
@@ -157,10 +168,10 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("draw_pov", static_cast<void (voronoicell::*)(double, double, double, const char*)>(&voronoicell::draw_pov))
         .method("draw_pov_mesh", static_cast<void (voronoicell::*)(double, double, double, const char*)>(&voronoicell::draw_pov_mesh))
         .method("init_octahedron", static_cast<void (voronoicell::*)(double)>(&voronoicell::init_octahedron))
-        .method("plane_intersects", static_cast<bool (voronoicell::*)(double, double, double, double)>(&voronoicell::plane_intersects));
+        .method("plane_intersects", static_cast<bool (voronoicell::*)(double, double, double, double)>(&voronoicell::plane_intersects))
+        .method("centroid!", static_cast<void (voronoicell::*)(double&, double&, double&)>(&voronoicell::centroid));
         //.method("output_vertices!", static_cast<void (voronoicell::*)(FILE*)>(&voronoicell::output_vertices))
         //.method("output_vertices!", static_cast<void (voronoicell::*)(double, double, double, FILE*)>(&voronoicell::output_vertices));
-        //.method("centroid", static_cast<void (voronoicell::*)(double&, double&, double&)>(&voronoicell::centroid));
         //.method("draw_gnuplot", static_cast<void (voronoicell::*)(double, double, double, FILE*)>(&voronoicell::draw_gnuplot))
 
 
@@ -189,4 +200,10 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     mod.method("compute_cell!", [] (voronoicell& vc, container& con, c_loop_all& itr) {return con.compute_cell(vc, itr);});
     mod.method("compute_cell!", [] (voronoicell& vc, container& con, int ijk, int q) {return con.compute_cell(vc, ijk, q);});
+
+    mod.method("compute_ghost_cell!", [] (voronoicell& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
+
+    // Public Menbers from Container Class
+
+    mod.method("get_particle_id", &get_particle_id);
 }
