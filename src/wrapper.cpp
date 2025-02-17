@@ -113,6 +113,21 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 {
     using namespace voro;
 
+
+    // Class Wall   
+    mod.add_type<wall>("Wall")
+        .method("point_inside", static_cast<bool (wall::*)(double,double,double)>(&wall::point_inside))
+        //.method("cut_cell", &wall::cut_cell)
+        ;
+    
+    
+    // Class Wall_List
+    mod.add_type<wall_list>("Wall_List")
+        .constructor<>()
+        .method("add_wall", static_cast<void (wall_list::*)(wall&)>(&wall_list::add_wall))
+        ;
+
+
     // Class Container
     mod.add_type<container>("Container")
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
@@ -124,7 +139,32 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("draw_cells_gnuplot", static_cast<void (container::*)(const char*)>(&container::draw_cells_gnuplot))
         .method("print_custom!", static_cast<void (container::*)(const char*, const char*)>(&container::print_custom))
         .method("draw_cells_pov!", static_cast<void (container::*)(const char*)>(&container::draw_cells_pov))
-        .method("find_voronoi_cell", [] (container &con, double x, double y, double z, double &rx, double &ry, double &rz, int &pid){return con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);});
+        .method("find_voronoi_cell", [] (container &con, double x, double y, double z, double &rx, double &ry, double &rz, int &pid){return con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);})
+        .method("clear", &container::clear)
+        .method("compute_all_cells", &container::compute_all_cells)
+        .method("sum_cell_volumes", &container::sum_cell_volumes)
+        .method("point_inside", static_cast<bool (container::*)(double, double, double)>(&container::point_inside))
+        .method("region_count", &container::region_count)
+        .method("initialize_voronoicell", static_cast<bool (container::*)(voronoicell&, int, int, int, int, int, int&, int&, int&, double&, double&, double&, int&)>(&container::initialize_voronoicell))
+        .method("initialize_search", static_cast<void (container::*)(int, int, int, int, int&, int&, int&, int&)>(&container::initialize_search))
+        .method("frac_pos", static_cast<void (container::*)(double, double, double, double, double, double, double&, double&, double&)>(&container::frac_pos))
+        .method("region_index", static_cast<int (container::*)(int, int, int, int, int, int, double&, double&, double&, int&)>(&container::region_index))
+        .method("draw_domain_gnuplot", static_cast<void (container::*)(const char*)>(&container::draw_domain_gnuplot))
+        .method("draw_domain_pov", static_cast<void (container::*)(const char*)>(&container::draw_domain_pov))
+        .method("total_particles", &container::total_particles)
+        //.method("contains_neighbor", static_cast<void (container::*)(const char*)>(&container::contains_neighbor))
+        .method("add_wall", static_cast<void (container::*)(wall*)>(&container::add_wall))
+        .method("add_wall!", static_cast<void (container::*)(wall&)>(&container::add_wall))
+        .method("add_wall!!", static_cast<void (container::*)(wall_list&)>(&container::add_wall))
+        .method("point_inside_walls", static_cast<bool (container::*)(double, double, double)>(&container::point_inside_walls))
+        .method("apply_walls", static_cast<bool (container::*)(voronoicell&, double, double, double)>(&container::apply_walls))
+        
+        // Protected Methods cannot be added
+        //.method("add_particle_memory", static_cast<void (container::*)(int)>(&container::add_particle_memory))
+        //.method("put_locate_block", static_cast<bool (container::*)(int&, double&, double&, double&)>(&container::put_locate_block))
+        //.method("put_remap", static_cast<bool (container::*)(int&, double&, double&, double&)>(&container::put_remap))
+        //.method("remap", static_cast<bool (container::*)(int&, int&, int&, int&, int&, int&, double&, double&, double&, int&)>(&container::remap))
+        ;
 
 
     // Class Container Poly
@@ -174,6 +214,23 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         //.method("output_vertices!", static_cast<void (voronoicell::*)(double, double, double, FILE*)>(&voronoicell::output_vertices));
         //.method("draw_gnuplot", static_cast<void (voronoicell::*)(double, double, double, FILE*)>(&voronoicell::draw_gnuplot))
 
+    
+    // Class VoronoiCell_Neighbor
+    mod.add_type<voronoicell_neighbor>("VoronoiCell_Neighbor")
+        .constructor<>()
+        .constructor<double>()
+        .constructor<container&>()
+        .method("init", static_cast<void (voronoicell_neighbor::*)(double,double,double,double,double,double)>(&voronoicell_neighbor::init))
+        .method("init_octahedron", static_cast<void (voronoicell_neighbor::*)(double)>(&voronoicell_neighbor::init_octahedron))
+        .method("init_tetrahedron", static_cast<void (voronoicell_neighbor::*)(double,double,double,double,double,double,double,double,double,double,double,double)>(&voronoicell_neighbor::init_tetrahedron))
+        .method("nplane_rsq", static_cast<bool (voronoicell_neighbor::*)(double,double,double,double,int)>(&voronoicell_neighbor::nplane))
+        .method("nplane", static_cast<bool (voronoicell_neighbor::*)(double,double,double,int)>(&voronoicell_neighbor::nplane))
+        .method("plane_rsq", static_cast<bool (voronoicell_neighbor::*)(double,double,double,double)>(&voronoicell_neighbor::plane))
+        .method("plane", static_cast<bool (voronoicell_neighbor::*)(double,double,double)>(&voronoicell_neighbor::plane))
+        .method("check_facets", &voronoicell_neighbor::check_facets)
+        .method("print_edges_neighbors", static_cast<void (voronoicell_neighbor::*)(int)>(&voronoicell_neighbor::print_edges_neighbors))
+        ;
+
 
     // Class Containter Periodic Poly (conprdply)
     mod.add_type<container_periodic_poly>("Container_Periodic_Poly")
@@ -185,9 +242,14 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("conprdply_draw_domain_gnuplot", static_cast<void (container_periodic_poly::*)(const char*)>(&container_periodic_poly::draw_domain_gnuplot));
         
 
-
-    // Class Wall   
-    //mod.add_type<wall>("Wall")
+    
+    // Class Wall_Sphere
+    mod.add_type<wall_sphere>("Wall_Sphere")
+        .constructor<double, double, double, double, int>()
+        .method("point_inside_wph", static_cast<bool (wall_sphere::*)(double, double, double)>(&wall_sphere::point_inside))
+        .method("cut_cell_vc", static_cast<bool (wall_sphere::*)(voronoicell&,double,double,double)>(&wall_sphere::cut_cell))
+        .method("cut_cell_vcn", static_cast<bool (wall_sphere::*)(voronoicell_neighbor&,double,double,double)>(&wall_sphere::cut_cell))
+        ;
 
     // Public Members from VoronoiCell Class
     mod.method("root_vertex", &get_up);
@@ -200,7 +262,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     mod.method("compute_cell!", [] (voronoicell& vc, container& con, c_loop_all& itr) {return con.compute_cell(vc, itr);});
     mod.method("compute_cell!", [] (voronoicell& vc, container& con, int ijk, int q) {return con.compute_cell(vc, ijk, q);});
-
     mod.method("compute_ghost_cell!", [] (voronoicell& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
 
     // Public Menbers from Container Class
