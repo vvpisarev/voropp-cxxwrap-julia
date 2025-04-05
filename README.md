@@ -4,7 +4,12 @@ C++ side of Julia wrapper for Voro++
 ## Build Instructions
 
 ### Building Voro++
-First, build Voro++ library (https://github.com/chr1shr/voro):
+1. First, build Voro++ library (https://github.com/chr1shr/voro) by cloning the repo in a local directory:
+```
+cd /opt
+sudo clone https://github.com/chr1shr/voro.git
+```
+
 ```
 cd voro
 mkdir build && cd build

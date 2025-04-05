@@ -4,49 +4,19 @@
 
 /* Get and Set methods for accessing public members from voronoicell class cel.hh*/
 
-int get_up(voro::voronoicell& v)
-{
-    return v.up;
-}
+int get_up(voro::voronoicell& v) { return v.up; }
 
-int get_p(voro::voronoicell& v)
-{
-    return v.p;
-}
+int get_p(voro::voronoicell& v) { return v.p; }
 
-int get_current_vertices(voro::voronoicell& v)
-{
-    return v.current_vertices;
-}
+int get_current_vertices(voro::voronoicell& v) { return v.current_vertices; }
 
-int* get_nu(voro::voronoicell& v)
-{
-    return v.nu;
-}
+int* get_nu(voro::voronoicell& v) { return v.nu; }
 
-int get_edge(voro::voronoicell& v, int i, int j)
-{
-    return v.ed[i][j];
-}
+int get_edge(voro::voronoicell& v, int i, int j) { return v.ed[i][j]; }
 
-int set_edge(voro::voronoicell& v, int k, int i, int j)
-{
-    v.ed[i][j] = k;
-    return k;
-}
+int set_edge(voro::voronoicell& v, int k, int i, int j) { v.ed[i][j] = k; return k; }
 
-double* get_pts(voro::voronoicell& v)
-{
-    return v.pts;
-}
-
-
-/* Get and Set methods for accessing public members from container class container.hh */
-
-int get_particle_id(voro::container& con, int i, int j) {
-
-    return con.id[i][j];
-}
+double* get_pts(voro::voronoicell& v) { return v.pts; }
 
 
 /* Extern Method for special cases Voronoicell */
@@ -89,24 +59,6 @@ extern "C" {
         return con->compute_ghost_cell(c, x, y, z, r);
     }
     
-
-    /*
-    void output_vertices_vorocell1(voro::voronoicell* vc, FILE *fp) {
-        
-        if ( fp == stdout )
-            vc->output_vertices();
-    }
-
-    void output_vertices_vorocell2(voro::voronoicell* vc, double x, double y, double z) {
-        
-        vc->output_vertices(x, y, z);
-    }
-
-    void output_vertex_orders_vc(voro::voronoicell* vc) {
-
-        vc->output_vertex_orders();
-    }*/
-
 }
 
 JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
@@ -117,7 +69,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     // Class Wall   
     mod.add_type<wall>("Wall")
         .method("point_inside", static_cast<bool (wall::*)(double,double,double)>(&wall::point_inside))
-        //.method("cut_cell", &wall::cut_cell)
         ;
     
     
@@ -133,7 +84,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
         .method("add_point!", static_cast<void (container::*)(int, double, double, double)>(&container::put))
         .method("import!", static_cast<void (container::*)(const char*)>(&container::import))
-        //.method("draw_cells_gnuplot", static_cast<void (container::*)(FILE*)>(&container::draw_cells_gnuplot))
         .method("draw_particles", static_cast<void (container::*)(const char*)>(&container::draw_particles))
         .method("draw_particles_pov", static_cast<void (container::*)(const char*)>(&container::draw_particles_pov))
         .method("draw_cells_gnuplot", static_cast<void (container::*)(const char*)>(&container::draw_cells_gnuplot))
@@ -152,18 +102,11 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("draw_domain_gnuplot", static_cast<void (container::*)(const char*)>(&container::draw_domain_gnuplot))
         .method("draw_domain_pov", static_cast<void (container::*)(const char*)>(&container::draw_domain_pov))
         .method("total_particles", &container::total_particles)
-        //.method("contains_neighbor", static_cast<void (container::*)(const char*)>(&container::contains_neighbor))
         .method("add_wall", static_cast<void (container::*)(wall*)>(&container::add_wall))
         .method("add_wall!", static_cast<void (container::*)(wall&)>(&container::add_wall))
         .method("add_wall!!", static_cast<void (container::*)(wall_list&)>(&container::add_wall))
         .method("point_inside_walls", static_cast<bool (container::*)(double, double, double)>(&container::point_inside_walls))
         .method("apply_walls", static_cast<bool (container::*)(voronoicell&, double, double, double)>(&container::apply_walls))
-        
-        // Protected Methods cannot be added
-        //.method("add_particle_memory", static_cast<void (container::*)(int)>(&container::add_particle_memory))
-        //.method("put_locate_block", static_cast<bool (container::*)(int&, double&, double&, double&)>(&container::put_locate_block))
-        //.method("put_remap", static_cast<bool (container::*)(int&, double&, double&, double&)>(&container::put_remap))
-        //.method("remap", static_cast<bool (container::*)(int&, int&, int&, int&, int&, int&, double&, double&, double&, int&)>(&container::remap))
         ;
 
 
@@ -176,15 +119,18 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("conp_draw_particles_pov", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_particles_pov))
         .method("conp_draw_cells_gnuplot", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_gnuplot))
         .method("conp_print_custom!", static_cast<void (container_poly::*)(const char*, const char*)>(&container_poly::print_custom))
-        .method("conp_draw_cells_pov!", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_pov));
+        .method("conp_draw_cells_pov!", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_pov))
+        ;
 
 
+    // Class Container Iterator
     mod.add_type<c_loop_all>("Container_Iterator")
         .constructor<container&>()
         .constructor<container_poly&>()
         .method("start!", &c_loop_all::start)
         .method("next!", &c_loop_all::inc)
-        .method("pos", [] (c_loop_all &cla, int &pid, double &x, double &y, double &z, double &r){cla.pos(pid, x, y, z, r);});
+        .method("pos", [] (c_loop_all &cla, int &pid, double &x, double &y, double &z, double &r){cla.pos(pid, x, y, z, r);})
+        ;
 
 
     // Class VoronoiCell
@@ -209,10 +155,8 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("draw_pov_mesh", static_cast<void (voronoicell::*)(double, double, double, const char*)>(&voronoicell::draw_pov_mesh))
         .method("init_octahedron", static_cast<void (voronoicell::*)(double)>(&voronoicell::init_octahedron))
         .method("plane_intersects", static_cast<bool (voronoicell::*)(double, double, double, double)>(&voronoicell::plane_intersects))
-        .method("centroid!", static_cast<void (voronoicell::*)(double&, double&, double&)>(&voronoicell::centroid));
-        //.method("output_vertices!", static_cast<void (voronoicell::*)(FILE*)>(&voronoicell::output_vertices))
-        //.method("output_vertices!", static_cast<void (voronoicell::*)(double, double, double, FILE*)>(&voronoicell::output_vertices));
-        //.method("draw_gnuplot", static_cast<void (voronoicell::*)(double, double, double, FILE*)>(&voronoicell::draw_gnuplot))
+        .method("centroid!", static_cast<void (voronoicell::*)(double&, double&, double&)>(&voronoicell::centroid))
+        ;
 
     
     // Class VoronoiCell_Neighbor
@@ -229,6 +173,19 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("plane", static_cast<bool (voronoicell_neighbor::*)(double,double,double)>(&voronoicell_neighbor::plane))
         .method("check_facets", &voronoicell_neighbor::check_facets)
         .method("print_edges_neighbors", static_cast<void (voronoicell_neighbor::*)(int)>(&voronoicell_neighbor::print_edges_neighbors))
+        .method("neighbors", static_cast<void (voronoicell_neighbor::*)(std::vector<int>&)>(&voronoicell_neighbor::neighbors))
+        // Inherited from voronoicel_base
+        .method("translate", static_cast<void (voronoicell_neighbor::*)(double, double, double)>(&voronoicell_neighbor::translate))
+        .method("draw_pov", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov))
+        .method("draw_pov_mesh", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov_mesh))
+        .method("draw_gnuplot", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_gnuplot))
+        .method("volume", &voronoicell_neighbor::volume)
+        .method("max_radius_squared", &voronoicell_neighbor::max_radius_squared)
+        .method("total_edge_distance", &voronoicell_neighbor::total_edge_distance)
+        .method("surface_area", &voronoicell_neighbor::surface_area)
+        .method("centroid", static_cast<void (voronoicell_neighbor::*)(double&, double&, double&)>(&voronoicell_neighbor::centroid))
+        .method("number_of_faces", &voronoicell_neighbor::number_of_faces)
+        .method("number_of_edges", &voronoicell_neighbor::number_of_edges)
         ;
 
 
@@ -236,10 +193,10 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.add_type<container_periodic_poly>("Container_Periodic_Poly")
         .constructor<double, double, double, double, double, double, int, int, int, int>()
         .method("conprdply_add_point!", static_cast<void (container_periodic_poly::*)(int, double, double, double, double)>(&container_periodic_poly::put))
-        //.method("conprdply_compute_ghost_cell", static_cast<bool (container_periodic_poly::*)(voronoicell&, double, double, double, double)>(&container_periodic_poly::compute_ghost_cell))
         .method("conprdply_draw_particles", static_cast<void (container_periodic_poly::*)(const char*)>(&container_periodic_poly::draw_particles))
         .method("conprdply_draw_cells_gnuplot", static_cast<void (container_periodic_poly::*)(const char*)>(&container_periodic_poly::draw_cells_gnuplot))
-        .method("conprdply_draw_domain_gnuplot", static_cast<void (container_periodic_poly::*)(const char*)>(&container_periodic_poly::draw_domain_gnuplot));
+        .method("conprdply_draw_domain_gnuplot", static_cast<void (container_periodic_poly::*)(const char*)>(&container_periodic_poly::draw_domain_gnuplot))
+        ;
         
 
     
@@ -264,7 +221,4 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.method("compute_cell!", [] (voronoicell& vc, container& con, int ijk, int q) {return con.compute_cell(vc, ijk, q);});
     mod.method("compute_ghost_cell!", [] (voronoicell& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
 
-    // Public Menbers from Container Class
-
-    mod.method("get_particle_id", &get_particle_id);
 }
