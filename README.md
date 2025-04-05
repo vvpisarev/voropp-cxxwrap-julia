@@ -9,6 +9,7 @@ C++ side of Julia wrapper for Voro++
 cd /opt
 sudo clone https://github.com/chr1shr/voro.git
 ```
+2. In voro repo folder execute the cmake build commands:
 
 ```
 cd voro
