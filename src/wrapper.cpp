@@ -162,7 +162,8 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("conp_draw_particles_pov", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_particles_pov))
         .method("conp_draw_cells_gnuplot", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_gnuplot))
         .method("conp_print_custom!", static_cast<void (container_poly::*)(const char*, const char*)>(&container_poly::print_custom))
-        .method("conp_draw_cells_pov!", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_pov));
+        .method("conp_draw_cells_pov!", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_pov))
+        ;
 
 
     mod.add_type<c_loop_all>("Container_Iterator")
@@ -170,7 +171,50 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .constructor<container_poly&>()
         .method("start!", &c_loop_all::start)
         .method("next!", &c_loop_all::inc)
-        .method("pos", [] (c_loop_all &cla, int &pid, double &x, double &y, double &z, double &r){cla.pos(pid, x, y, z, r);});
+        // Inherited from c_loop_base
+        .method("pos", [] (c_loop_all &cla, double &x, double &y, double &z){cla.pos(x, y, z);})
+        .method("pos", [] (c_loop_all &cla, int &pid, double &x, double &y, double &z, double &r){cla.pos(pid, x, y, z, r);})
+        .method("ci_x", &c_loop_all::x)
+        .method("ci_y", &c_loop_all::y)
+        .method("ci_z", &c_loop_all::z)
+        .method("ci_pid", &c_loop_all::pid)
+        ;
+    
+    mod.add_type<c_loop_subset>("Container_Iterator_Subset")
+        .constructor<container&>()
+        .constructor<container_poly&>()
+        .method("cis_start", &c_loop_subset::start)
+        .method("cis_next", &c_loop_subset::inc)
+        .method("cis_setup_sphere", static_cast<void (c_loop_subset::*)(double, double, double, double, bool)>(&c_loop_subset::setup_sphere))
+        .method("cis_setup_box", static_cast<void (c_loop_subset::*)(double, double, double, double, double, double, bool)>(&c_loop_subset::setup_box))
+        .method("cis_setup_intbox", static_cast<void (c_loop_subset::*)(int, int, int, int, int, int)>(&c_loop_subset::setup_intbox))
+        // Inherited from c_loop_base
+        .method("cis_pos", [] (c_loop_subset &cls, double &x, double &y, double &z){cls.pos(x, y, z);})
+        .method("cis_pos", [] (c_loop_subset &cls, int &pid, double &x, double &y, double &z, double &r){cls.pos(pid, x, y, z, r);})
+        .method("cis_x", &c_loop_subset::x)
+        .method("cis_y", &c_loop_subset::y)
+        .method("cis_z", &c_loop_subset::z)
+        .method("cis_pid", &c_loop_subset::pid)
+        ;
+    
+    mod.add_type<particle_order>("Particle_Order")
+        .constructor<int>()
+        .method("po_add", static_cast<void (particle_order::*)(int, int)>(&particle_order::add))
+        ;
+
+    mod.add_type<c_loop_order>("Container_Iterator_Order")
+        .constructor<container&, particle_order&>()
+        .constructor<container_poly&, particle_order&>()
+        .method("cio_start", &c_loop_order::start)
+        .method("cio_next", &c_loop_order::inc)
+        // Inherited from c_loop_base
+        .method("cio_pos", [] (c_loop_order &clo, double &x, double &y, double &z){clo.pos(x, y, z);})
+        .method("cio_pos", [] (c_loop_order &clo, int &pid, double &x, double &y, double &z, double &r){clo.pos(pid, x, y, z, r);})
+        .method("cio_x", &c_loop_order::x)
+        .method("cio_y", &c_loop_order::y)
+        .method("cio_z", &c_loop_order::z)
+        .method("cio_pid", &c_loop_order::pid)
+        ;
 
 
     // Class VoronoiCell
@@ -279,9 +323,12 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.method("__set_edge!", &set_edge);
     mod.method("__get_pts", &get_pts);
 
+    // Anonymus functions for special cases when two types ared needed
     mod.method("compute_cell!", [] (voronoicell& vc, container& con, c_loop_all& itr) {return con.compute_cell(vc, itr);});
     mod.method("compute_cell!", [] (voronoicell& vc, container& con, int ijk, int q) {return con.compute_cell(vc, ijk, q);});
     mod.method("compute_ghost_cell!", [] (voronoicell& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
+
+    mod.method("apply_walls!", [] (voronoicell& vc, container& con, double x, double y, double z){ return con.apply_walls(vc, x, y, z);});
 
     // Public Menbers from Container Class
 
