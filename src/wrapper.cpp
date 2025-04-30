@@ -67,18 +67,17 @@ double get_x_centroid(voro::voronoicell& v) {
     return x;
 }
 
-Centroid* get_centroid_struptr(voro::voronoicell& v, Centroid& ce) {
-
-    v.centroid(ce.x, ce.y, ce.z);
-
-    return &ce;
-
-}
-
 
 /* Extern Method for special cases Voronoicell */
 
 extern "C" {
+
+    // Access Centroid struct
+    Centroid* get_centroid_struptr(voro::voronoicell& v, Centroid& ce) {
+
+        v.centroid(ce.x, ce.y, ce.z);
+        return &ce;
+    }
 
     void draw_gnuplot_voronoicell(voro::voronoicell* vc, double x, double y, double z, FILE *fp) { vc->draw_gnuplot(x, y, z, fp); }
 
@@ -361,6 +360,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     mod.method("get_particle_id", &get_particle_id);
 
-    mod.map_type<Centroid>("Centroid");
-    mod.method("get_centroid_struptr", get_centroid_struptr);
+    // First attemp to add Centroid
+    //mod.map_type<Centroid>("Centroid");
+    //mod.method("get_centroid_struptr", get_centroid_struptr);
 }
