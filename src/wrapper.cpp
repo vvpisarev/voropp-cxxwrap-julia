@@ -4,53 +4,51 @@
 
 /* Get and Set methods for accessing public members from voronoicell class cel.hh*/
 
-int get_up(voro::voronoicell& v)
-{
+int get_up(voro::voronoicell& v) {
+
     return v.up;
 }
 
-int get_p(voro::voronoicell& v)
-{
+int get_p(voro::voronoicell& v) {
+
     return v.p;
 }
 
-int get_current_vertices(voro::voronoicell& v)
-{
+int get_current_vertices(voro::voronoicell& v) {
+
     return v.current_vertices;
 }
 
-int* get_nu(voro::voronoicell& v)
-{
+int* get_nu(voro::voronoicell& v) {
+
     return v.nu;
 }
 
-int get_edge(voro::voronoicell& v, int i, int j)
-{
+int get_edge(voro::voronoicell& v, int i, int j) {
+
     return v.ed[i][j];
 }
 
-int set_edge(voro::voronoicell& v, int k, int i, int j)
-{
+int set_edge(voro::voronoicell& v, int k, int i, int j) {
+
     v.ed[i][j] = k;
     return k;
 }
 
-double* get_pts(voro::voronoicell& v)
-{
+double* get_pts(voro::voronoicell& v) {
+
     return v.pts;
 }
 
 
 /* Get and Set methods for accessing public members from container class container.hh */
-
 int get_particle_id(voro::container& con, int i, int j) {
 
     return con.id[i][j];
 }
 
 
-/* struct to get centroid coordenates in a Julia way without references*/
-
+/* struct to get centroid coordinates in a Julia way without references*/
 struct Centroid {
     double x;
     double y;
@@ -59,7 +57,6 @@ struct Centroid {
 
 
 /* Extern Method for special cases Voronoicell */
-
 extern "C" {
 
     // Access Centroid struct
@@ -110,7 +107,6 @@ extern "C" {
 JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 {
     using namespace voro;
-
 
     // Class Wall   
     mod.add_type<wall>("Wall")
@@ -181,7 +177,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("conp_draw_cells_pov!", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_pov))
         ;
 
-
+    // Class Container Iterator
     mod.add_type<c_loop_all>("Container_Iterator")
         .constructor<container&>()
         .constructor<container_poly&>()
@@ -196,6 +192,8 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("ci_pid", &c_loop_all::pid)
         ;
     
+
+    // Class Container Iterator Subset
     mod.add_type<c_loop_subset>("Container_Iterator_Subset")
         .constructor<container&>()
         .constructor<container_poly&>()
@@ -213,11 +211,15 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("cis_pid", &c_loop_subset::pid)
         ;
     
+    
+    // Class Particle Order
     mod.add_type<particle_order>("Particle_Order")
         .constructor<int>()
         .method("po_add", static_cast<void (particle_order::*)(int, int)>(&particle_order::add))
         ;
 
+
+    // Class Container Iterator Order
     mod.add_type<c_loop_order>("Container_Iterator_Order")
         .constructor<container&, particle_order&>()
         .constructor<container_poly&, particle_order&>()
@@ -330,6 +332,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("cut_cell_vcn", static_cast<bool (wall_sphere::*)(voronoicell_neighbor&,double,double,double)>(&wall_sphere::cut_cell))
         ;
 
+    
     // Public Members from VoronoiCell Class
     mod.method("root_vertex", &get_up);
     mod.method("num_vertices", &get_p);
@@ -339,15 +342,13 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.method("__set_edge!", &set_edge);
     mod.method("__get_pts", &get_pts);
 
-    // Anonymus functions for special cases when two types ared needed
+    // Anonymus functions for special cases when two types are needed
     mod.method("compute_cell!", [] (voronoicell& vc, container& con, c_loop_all& itr) {return con.compute_cell(vc, itr);});
     mod.method("compute_cell!", [] (voronoicell& vc, container& con, int ijk, int q) {return con.compute_cell(vc, ijk, q);});
     mod.method("compute_ghost_cell!", [] (voronoicell& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
-
     mod.method("apply_walls!", [] (voronoicell& vc, container& con, double x, double y, double z){ return con.apply_walls(vc, x, y, z);});
 
     // Public Menbers from Container Class
-
     mod.method("get_particle_id", &get_particle_id);
 
 }
