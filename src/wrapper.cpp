@@ -49,7 +49,7 @@ int get_particle_id(voro::container& con, int i, int j) {
 }
 
 
-/* struct to get centroi coordenates in a Julia way without references*/
+/* struct to get centroid coordenates in a Julia way without references*/
 
 struct Centroid {
     double x;
@@ -57,26 +57,16 @@ struct Centroid {
     double z;
 };
 
-/* functions to get the pid, x, y, z and r coordinates from a particle */
-
-double get_x_centroid(voro::voronoicell& v) {
-
-    double x, y, z;
-    v.centroid(x, y, z);
-    
-    return x;
-}
-
 
 /* Extern Method for special cases Voronoicell */
 
 extern "C" {
 
     // Access Centroid struct
-    Centroid* get_centroid_struptr(voro::voronoicell& v, Centroid& ce) {
-
+    Centroid get_centroid_struptr(voro::voronoicell& v) {
+        Centroid ce;
         v.centroid(ce.x, ce.y, ce.z);
-        return &ce;
+        return ce;
     }
 
     void draw_gnuplot_voronoicell(voro::voronoicell* vc, double x, double y, double z, FILE *fp) { vc->draw_gnuplot(x, y, z, fp); }
@@ -360,7 +350,4 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     mod.method("get_particle_id", &get_particle_id);
 
-    // First attemp to add Centroid
-    //mod.map_type<Centroid>("Centroid");
-    //mod.method("get_centroid_struptr", get_centroid_struptr);
 }
