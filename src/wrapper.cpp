@@ -48,21 +48,35 @@ int get_particle_id(voro::container& con, int i, int j) {
 }
 
 
-/* struct to get centroid coordinates in a Julia way without references and pointers*/
+/* struct to get centroid coordinates in a Julia way without references and pointers */
 struct Centroid {
+
     double x;
     double y;
     double z;
 };
 
-/* struct to get particle info in a Julia way without references and pointers*/
+/* struct to get particle info in a Julia way without references and pointers */
 struct Particle_Info {
+
     int pid;
     double x;
     double y;
     double z;
     double r;
 };
+
+/* struct to get info from function find_voronoi_cell */
+
+struct Fnd_Voro_Cell {
+
+    bool found;
+    double rx;
+    double ry;
+    double rz;
+    int pid;
+};
+
 
 
 /* Extern Method for special cases Voronoicell */
@@ -82,6 +96,13 @@ extern "C" {
         Particle_Info pf;
         cla.pos(pf.pid, pf.x, pf.y, pf.z, pf.r); //int &pid, double &x, double &y, double &z, double &r
         return pf;
+    }
+
+    Fnd_Voro_Cell find_voro_cell(voro::container& con, double x, double y, double z) {
+
+        Fnd_Voro_Cell vor;
+        vor.found = con.find_voronoi_cell(x, y, z, vor.rx, vor.ry, vor.rz, vor.pid);
+        return vor;
     }
 
 
