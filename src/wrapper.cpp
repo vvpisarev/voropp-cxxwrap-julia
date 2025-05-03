@@ -76,10 +76,20 @@ extern "C" {
         return ce;
     }
 
+    // Access Particle info
     Particle_Info get_pos(voro::c_loop_all& cla) {
 
         Particle_Info pf;
         cla.pos(pf.pid, pf.x, pf.y, pf.z, pf.r); //int &pid, double &x, double &y, double &z, double &r
+        return pf;
+    }
+
+    // Looks for a cell that contains a specific vector
+
+    Particle_Info find_voro_cel(voro::container& con, double x, double y, double z) {
+
+        Particle_Info pf;
+        con.find_voronoi_cell(x, y, z, pf.x, pf.y, pf.z, pf.pid);
         return pf;
     }
 
