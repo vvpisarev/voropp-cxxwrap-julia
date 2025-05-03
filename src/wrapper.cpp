@@ -84,15 +84,6 @@ extern "C" {
         return pf;
     }
 
-    // Looks for a cell that contains a specific vector
-
-    Particle_Info find_voro_cel(voro::container& con, double x, double y, double z) {
-
-        Particle_Info pf;
-        con.find_voronoi_cell(x, y, z, pf.x, pf.y, pf.z, pf.pid);
-        return pf;
-    }
-
 
     void draw_gnuplot_voronoicell(voro::voronoicell* vc, double x, double y, double z, FILE *fp) { vc->draw_gnuplot(x, y, z, fp); }
 
