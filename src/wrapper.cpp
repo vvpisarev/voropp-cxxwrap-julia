@@ -110,31 +110,93 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
 
     // Class Container
-    mod.add_type<container>("Container")
+    mod.add_type<container>(
+        "RawContainer", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+    )
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
-        .method("add_point!", static_cast<void (container::*)(int, double, double, double)>(&container::put))
-        .method("import!", static_cast<void (container::*)(const char*)>(&container::import))
+        .method(
+            "__cxxwrap_add_point!",
+            static_cast<void (container::*)(int, double, double, double)>(&container::put)
+        )
+        .method(
+            "import!",
+            static_cast<void (container::*)(const char*)>(&container::import)
+        )
         // When exporting to Julia, it is no possible to derive automatically type FILE
         //.method("draw_cells_gnuplot", static_cast<void (container::*)(FILE*)>(&container::draw_cells_gnuplot))
-        .method("draw_particles", static_cast<void (container::*)(const char*)>(&container::draw_particles))
-        .method("draw_particles_pov", static_cast<void (container::*)(const char*)>(&container::draw_particles_pov))
-        .method("draw_cells_gnuplot", static_cast<void (container::*)(const char*)>(&container::draw_cells_gnuplot))
-        .method("print_custom!", static_cast<void (container::*)(const char*, const char*)>(&container::print_custom))
-        .method("draw_cells_pov!", static_cast<void (container::*)(const char*)>(&container::draw_cells_pov))
-        .method("find_voronoi_cell", [] (container &con, double x, double y, double z, double &rx, double &ry, double &rz, int &pid){return con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);})
-        .method("clear", &container::clear)
-        .method("compute_all_cells", &container::compute_all_cells)
-        .method("sum_cell_volumes", &container::sum_cell_volumes)
-        .method("point_inside!", static_cast<bool (container::*)(double, double, double)>(&container::point_inside))
-        .method("region_count", &container::region_count)
+        .method(
+            "draw_particles",
+            static_cast<void (container::*)(const char*)>(&container::draw_particles)
+        )
+        .method(
+            "draw_particles_pov",
+            static_cast<void (container::*)(const char*)>(&container::draw_particles_pov)
+        )
+        .method(
+            "draw_cells_gnuplot",
+            static_cast<void (container::*)(const char*)>(&container::draw_cells_gnuplot)
+        )
+        .method(
+            "print_custom",
+            static_cast<void (container::*)(const char*, const char*)>(&container::print_custom)
+        )
+        .method(
+            "draw_cells_pov",
+            static_cast<void (container::*)(const char*)>(&container::draw_cells_pov)
+        )
+        .method("__cxxwrap_find_cell",
+            [] (container &con, double x, double y, double z)
+            {
+                int pid;
+                double rx, ry, rz;
+                bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);
+                return std::make_tuple(found, pid, rx, ry, rz);
+            }
+        )
+        .method(
+            "clear!",
+            &container::clear
+        )
+        .method(
+            "compute_all_cells",
+            &container::compute_all_cells
+        )
+        .method(
+            "sum_cell_volumes", 
+            &container::sum_cell_volumes
+        )
+        .method(
+            "__cxxwrap_isinside", 
+            static_cast<bool (container::*)(double, double, double)>(&container::point_inside)
+        )
+        .method(
+            "region_count",
+            &container::region_count
+        )
         // When exporting to Julia, it is needed to defien first voronoicell type
         //.method("initialize_voronoicell", static_cast<bool (container::*)(voro::voronoicell&, int, int, int, int, int, int&, int&, int&, double&, double&, double&, int&)>(&container::initialize_voronoicell))
-        .method("initialize_search", static_cast<void (container::*)(int, int, int, int, int&, int&, int&, int&)>(&container::initialize_search))
-        .method("frac_pos", static_cast<void (container::*)(double, double, double, double, double, double, double&, double&, double&)>(&container::frac_pos))
-        .method("region_index", static_cast<int (container::*)(int, int, int, int, int, int, double&, double&, double&, int&)>(&container::region_index))
-        .method("draw_domain_gnuplot", static_cast<void (container::*)(const char*)>(&container::draw_domain_gnuplot))
-        .method("draw_domain_pov", static_cast<void (container::*)(const char*)>(&container::draw_domain_pov))
-        .method("total_particles", &container::total_particles)
+        .method(
+            "initialize_search",
+            static_cast<void (container::*)(int, int, int, int, int&, int&, int&, int&)>(&container::initialize_search)
+        )
+        .method(
+            "frac_pos",
+            static_cast<void (container::*)(double, double, double, double, double, double, double&, double&, double&)>(&container::frac_pos)
+        )
+        .method(
+            "region_index",
+            static_cast<int (container::*)(int, int, int, int, int, int, double&, double&, double&, int&)>(&container::region_index)
+        )
+        .method("draw_domain_gnuplot",
+            static_cast<void (container::*)(const char*)>(&container::draw_domain_gnuplot)
+        )
+        .method("draw_domain_pov",
+            static_cast<void (container::*)(const char*)>(&container::draw_domain_pov)
+        )
+        .method(
+            "total_particles",
+            &container::total_particles
+        )
         // Type mismatch from Voro++
         //.method("contains_neighbor", static_cast<void (container::*)(const char*)>(&container::contains_neighbor))
         .method("add_wall!", static_cast<void (container::*)(wall*)>(&container::add_wall))
@@ -143,33 +205,32 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("point_inside_walls", static_cast<bool (container::*)(double, double, double)>(&container::point_inside_walls))
         // When exporting to Julia, it is needed to defien first voronoicell type
         //.method("apply_walls", static_cast<bool (container::*)(voro::voronoicell&, double, double, double)>(&container::apply_walls))
-        
-        // Protected Methods cannot be added
-        //.method("add_particle_memory", static_cast<void (container::*)(int)>(&container::add_particle_memory))
-        //.method("put_locate_block", static_cast<bool (container::*)(int&, double&, double&, double&)>(&container::put_locate_block))
-        //.method("put_remap", static_cast<bool (container::*)(int&, double&, double&, double&)>(&container::put_remap))
-        //.method("remap", static_cast<bool (container::*)(int&, int&, int&, int&, int&, int&, double&, double&, double&, int&)>(&container::remap))
         ;
 
 
     // Class Container Poly
-    mod.add_type<container_poly>("Container_Poly")
+    mod.add_type<container_poly>(
+        "RawContainerPoly", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+    )
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
-        .method("conp_add_point!", static_cast<void (container_poly::*)(int, double, double, double, double)>(&container_poly::put))
-        .method("conp_import!", static_cast<void (container_poly::*)(const char*)>(&container_poly::import))
-        .method("conp_draw_particles", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_particles))
-        .method("conp_draw_particles_pov", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_particles_pov))
-        .method("conp_draw_cells_gnuplot", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_gnuplot))
-        .method("conp_print_custom!", static_cast<void (container_poly::*)(const char*, const char*)>(&container_poly::print_custom))
-        .method("conp_draw_cells_pov!", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_pov))
+        .method(
+            "__cxxwrap_add_point!",
+            static_cast<void (container_poly::*)(int, double, double, double, double)>(&container_poly::put)
+        )
+        .method("import!", static_cast<void (container_poly::*)(const char*)>(&container_poly::import))
+        .method("draw_particles", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_particles))
+        .method("draw_particles_pov", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_particles_pov))
+        .method("draw_cells_gnuplot", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_gnuplot))
+        .method("print_custom", static_cast<void (container_poly::*)(const char*, const char*)>(&container_poly::print_custom))
+        .method("draw_cells_pov", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_pov))
         ;
 
     // Class Container Iterator
-    mod.add_type<c_loop_all>("Container_Iterator")
+    mod.add_type<c_loop_all>("RawContainerIterator")
         .constructor<container&>()
         .constructor<container_poly&>()
-        .method("start!", &c_loop_all::start)
-        .method("next!", &c_loop_all::inc)
+        .method("__cxxwrap_start!", &c_loop_all::start)
+        .method("__cxxwrap_next!", &c_loop_all::inc)
         // Inherited from c_loop_base
         .method("pos", [] (c_loop_all &cla, double &x, double &y, double &z){cla.pos(x, y, z);})
         .method("pos", [] (c_loop_all &cla, int &pid, double &x, double &y, double &z, double &r){cla.pos(pid, x, y, z, r);})
