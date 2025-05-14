@@ -1,4 +1,5 @@
 #include "jlcxx/jlcxx.hpp"
+#include "jlcxx/tuple.hpp"
 #include "voro++.hh"
 
 
@@ -48,63 +49,9 @@ int get_particle_id(voro::container& con, int i, int j) {
 }
 
 
-/* struct to get centroid coordinates in a Julia way without references and pointers */
-struct Centroid {
-
-    double x;
-    double y;
-    double z;
-};
-
-/* struct to get particle info in a Julia way without references and pointers */
-struct Particle_Info {
-
-    int pid;
-    double x;
-    double y;
-    double z;
-    double r;
-};
-
-/* struct to get info from function find_voronoi_cell */
-
-struct Fnd_Voro_Cell {
-
-    bool found;
-    double rx;
-    double ry;
-    double rz;
-    int pid;
-};
-
-
 
 /* Extern Method for special cases Voronoicell */
 extern "C" {
-
-    // Access Centroid Vector
-    Centroid get_centroid(voro::voronoicell& v) {
-
-        Centroid ce;
-        v.centroid(ce.x, ce.y, ce.z);
-        return ce;
-    }
-
-    // Access Particle info
-    Particle_Info get_pos(voro::c_loop_all& cla) {
-
-        Particle_Info pf;
-        cla.pos(pf.pid, pf.x, pf.y, pf.z, pf.r); //int &pid, double &x, double &y, double &z, double &r
-        return pf;
-    }
-
-    Fnd_Voro_Cell find_voro_cell(voro::container& con, double x, double y, double z) {
-
-        Fnd_Voro_Cell vor;
-        vor.found = con.find_voronoi_cell(x, y, z, vor.rx, vor.ry, vor.rz, vor.pid);
-        return vor;
-    }
-
 
     void draw_gnuplot_voronoicell(voro::voronoicell* vc, double x, double y, double z, FILE *fp) { vc->draw_gnuplot(x, y, z, fp); }
 
@@ -390,5 +337,17 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     // Public Menbers from Container Class
     mod.method("get_particle_id", &get_particle_id);
+
+    ///////////////////////// refactors for Ref substitution //////////////////////
+
+    mod.method("get_pos", [] (c_loop_all& cla) {int pid; double x, y, z, r; cla.pos(pid, x, y, z, r); return std::make_tuple(pid,x,y,z,r);});
+
+    mod.method("find_voro_cell", [] (container& con, double x, double y, double z) { double rx, ry, rz; 
+        int pid; bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid); 
+        return std::make_tuple(found, rx, ry, rz, pid);});
+
+    mod.method("get_centroid", [] (voronoicell& v) {double x, y, z; v.centroid(x, y, z); return std::make_tuple(x,y,z);});
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }
