@@ -144,13 +144,30 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             "draw_cells_pov",
             static_cast<void (container::*)(const char*)>(&container::draw_cells_pov)
         )
-        .method("__cxxwrap_find_cell",
+        .method(
+            "__cxxwrap_find_cell",
             [] (container &con, double x, double y, double z)
             {
                 int pid;
                 double rx, ry, rz;
                 bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);
                 return std::make_tuple(found, pid, rx, ry, rz);
+            }
+        )
+        .method(
+            "__cxxwrap_periodic",
+            [] (container &con)
+            {
+                return std::make_tuple(con.xperiodic, con.yperiodic, con.zperiodic);
+            }
+        )
+        .method(
+            "bounds",
+            [] (container &con)
+            {
+                auto lower = std::make_tuple(con.ax, con.ay, con.az);
+                auto upper = std::make_tuple(con.bx, con.by. con.bz);
+                return std::make_tuple(lower, upper);
             }
         )
         .method(
@@ -199,7 +216,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         )
         // Type mismatch from Voro++
         //.method("contains_neighbor", static_cast<void (container::*)(const char*)>(&container::contains_neighbor))
-        .method("add_wall!", static_cast<void (container::*)(wall*)>(&container::add_wall))
         .method("add_wall!", static_cast<void (container::*)(wall&)>(&container::add_wall))
         .method("add_wall!", static_cast<void (container::*)(wall_list&)>(&container::add_wall))
         .method("point_inside_walls", static_cast<bool (container::*)(double, double, double)>(&container::point_inside_walls))
@@ -229,11 +245,34 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.add_type<c_loop_all>("RawContainerIterator")
         .constructor<container&>()
         .constructor<container_poly&>()
-        .method("__cxxwrap_start!", &c_loop_all::start)
-        .method("__cxxwrap_next!", &c_loop_all::inc)
+        .method(
+            "__cxxwrap_start!",
+            &c_loop_all::start
+        )
+        .method(
+            "__cxxwrap_next!",
+            &c_loop_all::inc
+        )
         // Inherited from c_loop_base
-        .method("pos", [] (c_loop_all &cla, double &x, double &y, double &z){cla.pos(x, y, z);})
-        .method("pos", [] (c_loop_all &cla, int &pid, double &x, double &y, double &z, double &r){cla.pos(pid, x, y, z, r);})
+        .method(
+            "pos",
+            [] (c_loop_all &cla)
+            {
+                double x, y, z;
+                cla.pos(x, y, z);
+                return std::make_tuple(x, y, z);
+            }
+        )
+        .method(
+            "particle_info",
+            [] (c_loop_all &cla)
+            {
+                int pid;
+                double x, y, z, r;
+                cla.pos(pid, x, y, z, r);
+                return std::make_tuple(pid, x, y, z, r);
+            }
+        )
         .method("ci_x", &c_loop_all::x)
         .method("ci_y", &c_loop_all::y)
         .method("ci_z", &c_loop_all::z)
@@ -261,21 +300,43 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     
     
     // Class Particle Order
-    mod.add_type<particle_order>("Particle_Order")
-        .constructor<int>()
-        .method("po_add", static_cast<void (particle_order::*)(int, int)>(&particle_order::add))
+    mod.add_type<particle_order>("InsertionOrder")
+        .constructor<>()
         ;
 
 
     // Class Container Iterator Order
-    mod.add_type<c_loop_order>("Container_Iterator_Order")
+    mod.add_type<c_loop_order>("InsertionOrderIterator")
         .constructor<container&, particle_order&>()
         .constructor<container_poly&, particle_order&>()
-        .method("cio_start", &c_loop_order::start)
-        .method("cio_next", &c_loop_order::inc)
+        .method(
+            "__cxxwrap_start!",
+            &c_loop_order::start
+        )
+        .method(
+            "__cxxwrap_next",
+            &c_loop_order::inc
+        )
         // Inherited from c_loop_base
-        .method("cio_pos", [] (c_loop_order &clo, double &x, double &y, double &z){clo.pos(x, y, z);})
-        .method("cio_pos", [] (c_loop_order &clo, int &pid, double &x, double &y, double &z, double &r){clo.pos(pid, x, y, z, r);})
+        .method(
+            "pos",
+            [] (c_loop_order &cla)
+            {
+                double x, y, z;
+                cla.pos(x, y, z);
+                return std::make_tuple(x, y, z);
+            }
+        )
+        .method(
+            "particle_info",
+            [] (c_loop_order &cla)
+            {
+                int pid;
+                double x, y, z, r;
+                cla.pos(pid, x, y, z, r);
+                return std::make_tuple(pid, x, y, z, r);
+            }
+        )
         .method("cio_x", &c_loop_order::x)
         .method("cio_y", &c_loop_order::y)
         .method("cio_z", &c_loop_order::z)
