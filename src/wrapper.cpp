@@ -163,9 +163,11 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
 
     // Class Container
-    mod.add_type<container>("Container")
+    mod.add_type<container>(
+        "UnorderedContainer", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+    )
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
-        .method("add_point!", static_cast<void (container::*)(int, double, double, double)>(&container::put))
+        .method("__cxxwrap_add_point!", static_cast<void (container::*)(int, double, double, double)>(&container::put))
         .method("import!", static_cast<void (container::*)(const char*)>(&container::import))
         // When exporting to Julia, it is no possible to derive automatically type FILE
         //.method("draw_cells_gnuplot", static_cast<void (container::*)(FILE*)>(&container::draw_cells_gnuplot))
@@ -174,11 +176,19 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("draw_cells_gnuplot", static_cast<void (container::*)(const char*)>(&container::draw_cells_gnuplot))
         .method("print_custom!", static_cast<void (container::*)(const char*, const char*)>(&container::print_custom))
         .method("draw_cells_pov!", static_cast<void (container::*)(const char*)>(&container::draw_cells_pov))
-        .method("find_voronoi_cell", [] (container &con, double x, double y, double z, double &rx, double &ry, double &rz, int &pid){return con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);})
-        .method("clear", &container::clear)
+        .method("__cxxwrap_find_cell",
+            [] (container &con, double x, double y, double z)
+            {
+                int pid;
+                double rx, ry, rz;
+                bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);
+                return std::make_tuple(found, pid, rx, ry, rz);
+            }
+        )
+        .method("clear!", &container::clear)
         .method("compute_all_cells", &container::compute_all_cells)
         .method("sum_cell_volumes", &container::sum_cell_volumes)
-        .method("point_inside!", static_cast<bool (container::*)(double, double, double)>(&container::point_inside))
+        .method("__cxxwrap_isinside", static_cast<bool (container::*)(double, double, double)>(&container::point_inside))
         .method("region_count", &container::region_count)
         // When exporting to Julia, it is needed to defien first voronoicell type
         //.method("initialize_voronoicell", static_cast<bool (container::*)(voro::voronoicell&, int, int, int, int, int, int&, int&, int&, double&, double&, double&, int&)>(&container::initialize_voronoicell))
