@@ -162,12 +162,10 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             }
         )
         .method(
-            "bounds",
+            "__cxxwrap_bounds",
             [] (container &con)
             {
-                auto lower = std::make_tuple(con.ax, con.ay, con.az);
-                auto upper = std::make_tuple(con.bx, con.by. con.bz);
-                return std::make_tuple(lower, upper);
+                return std::make_tuple(con.ax, con.ay, con.az, con.bx, con.by, con.bz);
             }
         )
         .method(
@@ -281,17 +279,49 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     
 
     // Class Container Iterator Subset
-    mod.add_type<c_loop_subset>("Container_Iterator_Subset")
+    mod.add_type<c_loop_subset>("ContainerSubsetIterator")
         .constructor<container&>()
         .constructor<container_poly&>()
-        .method("cis_start", &c_loop_subset::start)
-        .method("cis_next", &c_loop_subset::inc)
-        .method("cis_setup_sphere", static_cast<void (c_loop_subset::*)(double, double, double, double, bool)>(&c_loop_subset::setup_sphere))
-        .method("cis_setup_box", static_cast<void (c_loop_subset::*)(double, double, double, double, double, double, bool)>(&c_loop_subset::setup_box))
-        .method("cis_setup_intbox", static_cast<void (c_loop_subset::*)(int, int, int, int, int, int)>(&c_loop_subset::setup_intbox))
+        .method(
+            "__cxxwrap_start!",
+            &c_loop_subset::start
+        )
+        .method(
+            "__cxxwrap_next!",
+            &c_loop_subset::inc
+        )
+        .method(
+            "__cxxwrap_set_bounds_to_sphere!",
+            static_cast<void (c_loop_subset::*)(double, double, double, double, bool)>(&c_loop_subset::setup_sphere)
+        )
+        .method(
+            "__cxxwrap_set_bounds_to_box!",
+            static_cast<void (c_loop_subset::*)(double, double, double, double, double, double, bool)>(&c_loop_subset::setup_box)
+        )
+        .method(
+            "__cxxwrap_set_bounds_to_intbox!",
+            static_cast<void (c_loop_subset::*)(int, int, int, int, int, int)>(&c_loop_subset::setup_intbox)
+        )
         // Inherited from c_loop_base
-        .method("cis_pos", [] (c_loop_subset &cls, double &x, double &y, double &z){cls.pos(x, y, z);})
-        .method("cis_pos", [] (c_loop_subset &cls, int &pid, double &x, double &y, double &z, double &r){cls.pos(pid, x, y, z, r);})
+        .method(
+            "pos",
+            [] (c_loop_subset &cla)
+            {
+                double x, y, z;
+                cla.pos(x, y, z);
+                return std::make_tuple(x, y, z);
+            }
+        )
+        .method(
+            "particle_info",
+            [] (c_loop_subset &cla)
+            {
+                int pid;
+                double x, y, z, r;
+                cla.pos(pid, x, y, z, r);
+                return std::make_tuple(pid, x, y, z, r);
+            }
+        )
         .method("cis_x", &c_loop_subset::x)
         .method("cis_y", &c_loop_subset::y)
         .method("cis_z", &c_loop_subset::z)
@@ -462,13 +492,11 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     ///////////////////////// refactors for Ref substitution //////////////////////
 
-    mod.method("get_pos", [] (c_loop_all& cla) {int pid; double x, y, z, r; cla.pos(pid, x, y, z, r); return std::make_tuple(pid,x,y,z,r);});
+    // mod.method("find_voro_cell", [] (container& con, double x, double y, double z) { double rx, ry, rz; 
+    //     int pid; bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid); 
+    //     return std::make_tuple(found, rx, ry, rz, pid);});
 
-    mod.method("find_voro_cell", [] (container& con, double x, double y, double z) { double rx, ry, rz; 
-        int pid; bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid); 
-        return std::make_tuple(found, rx, ry, rz, pid);});
-
-    mod.method("get_centroid", [] (voronoicell& v) {double x, y, z; v.centroid(x, y, z); return std::make_tuple(x,y,z);});
+    // mod.method("get_centroid", [] (voronoicell& v) {double x, y, z; v.centroid(x, y, z); return std::make_tuple(x,y,z);});
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
