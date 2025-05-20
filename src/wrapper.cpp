@@ -95,6 +95,13 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 {
     using namespace voro;
 
+    // Class Particle Order
+    mod.add_type<particle_order>(
+        "InsertionOrder",  jlcxx::julia_type("ContainerIterationOrder", "VoroPlusPlus")
+    )
+        .constructor<>()
+    ;
+
     // Class Wall   
     mod.add_type<wall>("Wall")
         .method("point_inside", static_cast<bool (wall::*)(double,double,double)>(&wall::point_inside))
@@ -111,12 +118,16 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     // Class Container
     mod.add_type<container>(
-        "RawContainer", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+        "RawContainer", jlcxx::julia_type("AbstractRawContainer", "VoroPlusPlus")
     )
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
         .method(
             "__cxxwrap_add_point!",
             static_cast<void (container::*)(int, double, double, double)>(&container::put)
+        )
+        .method(
+            "__cxxwrap_add_point!",
+            static_cast<void (container::*)(particle_order&, int, double, double, double)>(&container::put)
         )
         .method(
             "import!",
@@ -224,7 +235,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     // Class Container Poly
     mod.add_type<container_poly>(
-        "RawContainerPoly", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+        "RawContainerPoly", jlcxx::julia_type("AbstractRawContainer", "VoroPlusPlus")
     )
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
         .method(
@@ -326,13 +337,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("cis_y", &c_loop_subset::y)
         .method("cis_z", &c_loop_subset::z)
         .method("cis_pid", &c_loop_subset::pid)
-        ;
-    
-    
-    // Class Particle Order
-    mod.add_type<particle_order>("InsertionOrder")
-        .constructor<>()
-        ;
+    ;
 
 
     // Class Container Iterator Order
