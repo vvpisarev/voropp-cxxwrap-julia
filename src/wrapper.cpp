@@ -5,38 +5,38 @@
 
 /* Get and Set methods for accessing public members from voronoicell class cel.hh*/
 
-int get_up(voro::voronoicell& v) {
+int get_up(voro::voronoicell_neighbor& v) {
 
     return v.up;
 }
 
-int get_p(voro::voronoicell& v) {
+int get_p(voro::voronoicell_neighbor& v) {
 
     return v.p;
 }
 
-int get_current_vertices(voro::voronoicell& v) {
+int get_current_vertices(voro::voronoicell_neighbor& v) {
 
     return v.current_vertices;
 }
 
-int* get_nu(voro::voronoicell& v) {
+int* get_nu(voro::voronoicell_neighbor& v) {
 
     return v.nu;
 }
 
-int get_edge(voro::voronoicell& v, int i, int j) {
+int get_edge(voro::voronoicell_neighbor& v, int i, int j) {
 
     return v.ed[i][j];
 }
 
-int set_edge(voro::voronoicell& v, int k, int i, int j) {
+int set_edge(voro::voronoicell_neighbor& v, int k, int i, int j) {
 
     v.ed[i][j] = k;
     return k;
 }
 
-double* get_pts(voro::voronoicell& v) {
+double* get_pts(voro::voronoicell_neighbor& v) {
 
     return v.pts;
 }
@@ -53,38 +53,38 @@ int get_particle_id(voro::container& con, int i, int j) {
 /* Extern Method for special cases Voronoicell */
 extern "C" {
 
-    void draw_gnuplot_voronoicell(voro::voronoicell* vc, double x, double y, double z, FILE *fp) { vc->draw_gnuplot(x, y, z, fp); }
+    void draw_gnuplot_voronoicell(voro::voronoicell_neighbor* vc, double x, double y, double z, FILE *fp) { vc->draw_gnuplot(x, y, z, fp); }
 
     // Version implemented from Voro++  >>>  void output_vertices(FILE *fp=stdout), ignoring stdout by default
     // without position parameters
-    void output_vertices_nopos(voro::voronoicell* vc, FILE *fp) { vc->output_vertices(fp); }
+    void output_vertices_nopos(voro::voronoicell_neighbor* vc, FILE *fp) { vc->output_vertices(fp); }
 
     // Version implemented from Voro++  >>>  void output_vertices(double x,double y,double z,FILE *fp=stdout), ignoring stdout by default
     // with position parameters
-    void output_vertices_positions(voro::voronoicell* vc, double x, double y, double z, FILE *fp) { vc->output_vertices(x, y, z, fp); }
+    void output_vertices_positions(voro::voronoicell_neighbor* vc, double x, double y, double z, FILE *fp) { vc->output_vertices(x, y, z, fp); }
 
     // Version implemented from Voro++  >>>  void output_vertex_orders(FILE *fp=stdout), ignoring stdout by default
-    void output_vertex_orders_vorocell(voro::voronoicell* vc, FILE *fp) { vc->output_vertex_orders(fp); }
+    void output_vertex_orders_vorocell(voro::voronoicell_neighbor* vc, FILE *fp) { vc->output_vertex_orders(fp); }
 
     // Version implemented from Voro++  >>>  inline void output_face_perimeters(FILE *fp=stdout), ignoring stdout by default
-    void output_face_perimeters_vorocell(voro::voronoicell* vc, FILE *fp) { vc->output_face_perimeters(fp); }
+    void output_face_perimeters_vorocell(voro::voronoicell_neighbor* vc, FILE *fp) { vc->output_face_perimeters(fp); }
 
     // Version implemented from Voro++  >>>  inline void output_face_freq_table(FILE *fp=stdout), ignoring stdout by default
-    void output_face_freq_table_vorocell(voro::voronoicell* vc, FILE *fp) { vc->output_face_freq_table(fp); }
+    void output_face_freq_table_vorocell(voro::voronoicell_neighbor* vc, FILE *fp) { vc->output_face_freq_table(fp); }
 
     // Version implemented from Voro++  >>>  inline void output_face_orders(FILE *fp=stdout), ignoring stdout by default
-    void output_face_orders_vorocell(voro::voronoicell* vc, FILE *fp) { vc->output_face_orders(fp); }
+    void output_face_orders_vorocell(voro::voronoicell_neighbor* vc, FILE *fp) { vc->output_face_orders(fp); }
     
     // Version implemented from Voro++  >>>  inline void output_face_areas(FILE *fp=stdout), ignoring stdout by default
-    void output_face_areas_vorocell(voro::voronoicell* vc, FILE *fp) { vc->output_face_areas(fp); }
+    void output_face_areas_vorocell(voro::voronoicell_neighbor* vc, FILE *fp) { vc->output_face_areas(fp); }
     
     // Version implemented from Voro++  >>>  inline void output_normals(FILE *fp=stdout), ignoring stdout by default
-    void output_normals_vorocell(voro::voronoicell* vc, FILE *fp) { vc->output_normals(fp); }
+    void output_normals_vorocell(voro::voronoicell_neighbor* vc, FILE *fp) { vc->output_normals(fp); }
     
     // Version implemented from Voro++  >>>  inline void output_face_vertices(FILE *fp=stdout), ignoring stdout by default
-    void output_face_vertices_vorocell(voro::voronoicell* vc, FILE *fp) { vc->output_face_vertices(fp); }
+    void output_face_vertices_vorocell(voro::voronoicell_neighbor* vc, FILE *fp) { vc->output_face_vertices(fp); }
 
-    bool compute_ghost_cell_conprdply(voro::container_periodic_poly* con, voro::voronoicell* c, double x, double y, double z, double r) {
+    bool compute_ghost_cell_conprdply(voro::container_periodic_poly* con, voro::voronoicell_neighbor* c, double x, double y, double z, double r) {
 
         return con->compute_ghost_cell(c, x, y, z, r);
     }
@@ -180,7 +180,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             }
         )
         .method(
-            "clear!",
+            "__cxxwrap_clear!",
             &container::clear
         )
         .method(
@@ -380,43 +380,57 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
 
     // Class VoronoiCell
-    mod.add_type<voronoicell>("VoronoiCell")
+    mod.add_type<voronoicell_neighbor>("VoronoiCell")
         .constructor<>()
         .constructor<double>()
         .constructor<container&>()
-        .method("init!", &voronoicell::init)
-        .method("init_l_shape!", &voronoicell::init_l_shape)
-        .method("add_plane!", static_cast<bool (voronoicell::*)(double, double, double, double)>(&voronoicell::plane))
-        .method("add_plane!", static_cast<bool (voronoicell::*)(double, double, double)>(&voronoicell::plane))
-        .method("volume", &voronoicell::volume)
-        .method("check_relations", &voronoicell::check_relations)
-        .method("check_duplicates", &voronoicell::check_duplicates)
-        .method("max_radius_squared", &voronoicell::max_radius_squared)
-        .method("number_of_edges", &voronoicell::number_of_edges)
-        .method("total_edge_distance", &voronoicell::total_edge_distance)
-        .method("number_of_faces", &voronoicell::number_of_faces)
-        .method("surface_area", &voronoicell::surface_area)
-        .method("draw_gnuplot!", static_cast<void (voronoicell::*)(double, double, double, const char*)>(&voronoicell::draw_gnuplot))
-        .method("draw_pov", static_cast<void (voronoicell::*)(double, double, double, const char*)>(&voronoicell::draw_pov))
-        .method("draw_pov_mesh", static_cast<void (voronoicell::*)(double, double, double, const char*)>(&voronoicell::draw_pov_mesh))
-        .method("init_octahedron", static_cast<void (voronoicell::*)(double)>(&voronoicell::init_octahedron))
-        .method("plane_intersects", static_cast<bool (voronoicell::*)(double, double, double, double)>(&voronoicell::plane_intersects))
-        .method("centroid!", static_cast<void (voronoicell::*)(double&, double&, double&)>(&voronoicell::centroid))
-
-        .method("nplane", static_cast<bool (voronoicell::*)(double, double, double, double, int)>(&voronoicell::nplane))
-        .method("nplane", static_cast<bool (voronoicell::*)(double, double, double, int)>(&voronoicell::nplane))
-        .method("init_tetrahedron", static_cast<void (voronoicell::*)(double, double, double, double, double, double, double, double, double, double, double, double)>(&voronoicell::init_tetrahedron))
+        .method(
+            "__cxxwrap_init!",
+            &voronoicell_neighbor::init
+        )
+        .method(
+            "__cxxwrap_plane!",
+            static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane)
+        )
+        .method(
+            "__cxxwrap_plane!",
+            static_cast<bool (voronoicell_neighbor::*)(double, double, double)>(&voronoicell_neighbor::plane)
+        )
+        .method("volume", &voronoicell_neighbor::volume)
+        .method("check_relations", &voronoicell_neighbor::check_relations)
+        .method("check_duplicates", &voronoicell_neighbor::check_duplicates)
+        .method("max_radius_squared", &voronoicell_neighbor::max_radius_squared)
+        .method("number_of_edges", &voronoicell_neighbor::number_of_edges)
+        .method("total_edge_distance", &voronoicell_neighbor::total_edge_distance)
+        .method("number_of_faces", &voronoicell_neighbor::number_of_faces)
+        .method("surface_area", &voronoicell_neighbor::surface_area)
+        .method("draw_gnuplot!", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_gnuplot))
+        .method("draw_pov", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov))
+        .method("draw_pov_mesh", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov_mesh))
+        .method("init_octahedron", static_cast<void (voronoicell_neighbor::*)(double)>(&voronoicell_neighbor::init_octahedron))
+        .method("plane_intersects", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects))
+        .method(
+            "centroid",
+            [] (voronoicell& v) {
+                double x, y, z;
+                v.centroid(x, y, z);
+                return std::make_tuple(x, y, z);
+            }
+        )
+        .method("nplane", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double, int)>(&voronoicell_neighbor::nplane))
+        .method("nplane", static_cast<bool (voronoicell_neighbor::*)(double, double, double, int)>(&voronoicell_neighbor::nplane))
+        .method("init_tetrahedron", static_cast<void (voronoicell_neighbor::*)(double, double, double, double, double, double, double, double, double, double, double, double)>(&voronoicell_neighbor::init_tetrahedron))
 
         // Inherited from voronoicell_base
-        .method("init_base", static_cast<void (voronoicell::*)(double, double, double, double, double, double)>(&voronoicell::init_base))
-        .method("init_octahedron_base", static_cast<void (voronoicell::*)(double)>(&voronoicell::init_octahedron_base))
-        .method("init_tetrahedron_base", static_cast<void (voronoicell::*)(double, double, double, double, double, double, double, double, double, double, double, double)>(&voronoicell::init_tetrahedron_base))
-        .method("translate", static_cast<void (voronoicell::*)(double, double, double)>(&voronoicell::translate))
-        .method("plane_intersects_guess", static_cast<bool (voronoicell::*)(double, double, double, double)>(&voronoicell::plane_intersects_guess))
-        .method("construct_relations", &voronoicell::construct_relations)
-        .method("print_edges", &voronoicell::print_edges)
-        .method("cycle_up", static_cast<int (voronoicell::*)(int, int)>(&voronoicell::cycle_up))
-        .method("cycle_down", static_cast<int (voronoicell::*)(int, int)>(&voronoicell::cycle_down))
+        .method("init_base", static_cast<void (voronoicell_neighbor::*)(double, double, double, double, double, double)>(&voronoicell_neighbor::init_base))
+        .method("init_octahedron_base", static_cast<void (voronoicell_neighbor::*)(double)>(&voronoicell_neighbor::init_octahedron_base))
+        .method("init_tetrahedron_base", static_cast<void (voronoicell_neighbor::*)(double, double, double, double, double, double, double, double, double, double, double, double)>(&voronoicell_neighbor::init_tetrahedron_base))
+        .method("translate", static_cast<void (voronoicell_neighbor::*)(double, double, double)>(&voronoicell_neighbor::translate))
+        .method("plane_intersects_guess", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects_guess))
+        .method("construct_relations", &voronoicell_neighbor::construct_relations)
+        .method("print_edges", &voronoicell_neighbor::print_edges)
+        .method("cycle_up", static_cast<int (voronoicell_neighbor::*)(int, int)>(&voronoicell_neighbor::cycle_up))
+        .method("cycle_down", static_cast<int (voronoicell_neighbor::*)(int, int)>(&voronoicell_neighbor::cycle_down))
 
         //.method("output_vertices!", static_cast<void (voronoicell::*)(FILE*)>(&voronoicell::output_vertices))
         //.method("output_vertices!", static_cast<void (voronoicell::*)(double, double, double, FILE*)>(&voronoicell::output_vertices));
@@ -424,37 +438,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         //.method("reset_edges", &voronoicell::reset_edges)
         //.method("reset_edges", [](const voronoicell& c) { return dynamic_cast<const C*>(&c)->data; });
         ;
-
-    
-    // Class VoronoiCell_Neighbor
-    mod.add_type<voronoicell_neighbor>("VoronoiCell_Neighbor")
-        .constructor<>()
-        .constructor<double>()
-        .constructor<container&>()
-        .method("init_vcn", static_cast<void (voronoicell_neighbor::*)(double,double,double,double,double,double)>(&voronoicell_neighbor::init))
-        .method("init_octahedron_vcn", static_cast<void (voronoicell_neighbor::*)(double)>(&voronoicell_neighbor::init_octahedron))
-        .method("init_tetrahedron_vcn", static_cast<void (voronoicell_neighbor::*)(double,double,double,double,double,double,double,double,double,double,double,double)>(&voronoicell_neighbor::init_tetrahedron))
-        .method("nplane_rsq_vcn", static_cast<bool (voronoicell_neighbor::*)(double,double,double,double,int)>(&voronoicell_neighbor::nplane))
-        .method("nplane_vcn", static_cast<bool (voronoicell_neighbor::*)(double,double,double,int)>(&voronoicell_neighbor::nplane))
-        .method("plane_rsq_vcn", static_cast<bool (voronoicell_neighbor::*)(double,double,double,double)>(&voronoicell_neighbor::plane))
-        .method("plane_vcn", static_cast<bool (voronoicell_neighbor::*)(double,double,double)>(&voronoicell_neighbor::plane))
-        .method("check_facets_vcn", &voronoicell_neighbor::check_facets)
-        .method("print_edges_neighbors_vcn", static_cast<void (voronoicell_neighbor::*)(int)>(&voronoicell_neighbor::print_edges_neighbors))
-        .method("neighbors_vcn", static_cast<void (voronoicell_neighbor::*)(std::vector<int>&)>(&voronoicell_neighbor::neighbors))
-        // Inherited from voronoicel_base
-        .method("translate_vcn", static_cast<void (voronoicell_neighbor::*)(double, double, double)>(&voronoicell_neighbor::translate))
-        .method("draw_pov_vcn", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov))
-        .method("draw_pov_mesh_vcn", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov_mesh))
-        .method("draw_gnuplot_vcn", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_gnuplot))
-        .method("volume_vcn", &voronoicell_neighbor::volume)
-        .method("max_radius_squared_vcn", &voronoicell_neighbor::max_radius_squared)
-        .method("total_edge_distance_vcn", &voronoicell_neighbor::total_edge_distance)
-        .method("surface_area_vcn", &voronoicell_neighbor::surface_area)
-        .method("centroid_vcn", static_cast<void (voronoicell_neighbor::*)(double&, double&, double&)>(&voronoicell_neighbor::centroid))
-        .method("number_of_faces_vcn", &voronoicell_neighbor::number_of_faces)
-        .method("number_of_edges_vcn", &voronoicell_neighbor::number_of_edges)
-        ;
-
 
     // Class Containter Periodic Poly (conprdply)
     mod.add_type<container_periodic_poly>("Container_Periodic_Poly")
@@ -472,8 +455,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.add_type<wall_sphere>("Wall_Sphere")
         .constructor<double, double, double, double, int>()
         .method("point_inside_wph", static_cast<bool (wall_sphere::*)(double, double, double)>(&wall_sphere::point_inside))
-        .method("cut_cell_vc", static_cast<bool (wall_sphere::*)(voronoicell&,double,double,double)>(&wall_sphere::cut_cell))
-        .method("cut_cell_vcn", static_cast<bool (wall_sphere::*)(voronoicell_neighbor&,double,double,double)>(&wall_sphere::cut_cell))
+        .method("__cxxwrap_cut_cell!", static_cast<bool (wall_sphere::*)(voronoicell_neighbor&,double,double,double)>(&wall_sphere::cut_cell))
         ;
 
     
