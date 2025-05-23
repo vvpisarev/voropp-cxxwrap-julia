@@ -384,9 +384,19 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .constructor<>()
         .constructor<double>()
         .constructor<container&>()
+        .constructor<container_poly&>()
+        .constructor<container_periodic_poly&>()
         .method(
             "__cxxwrap_init!",
             &voronoicell_neighbor::init
+        )
+        .method(
+            "__cxxwrap_init_octahedron!",
+            &voronoicell_neighbor::init_octahedron
+        )
+        .method(
+            "__cxxwrap_init_tetrahedron!",
+            &voronoicell_neighbor::init_tetrahedron
         )
         .method(
             "__cxxwrap_plane!",
@@ -397,17 +407,16 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             static_cast<bool (voronoicell_neighbor::*)(double, double, double)>(&voronoicell_neighbor::plane)
         )
         .method("volume", &voronoicell_neighbor::volume)
-        .method("check_relations", &voronoicell_neighbor::check_relations)
-        .method("check_duplicates", &voronoicell_neighbor::check_duplicates)
-        .method("max_radius_squared", &voronoicell_neighbor::max_radius_squared)
+        //.method("check_relations", &voronoicell_neighbor::check_relations)
+        //.method("check_duplicates", &voronoicell_neighbor::check_duplicates)
+        //.method("max_radius_squared", &voronoicell_neighbor::max_radius_squared)
         .method("number_of_edges", &voronoicell_neighbor::number_of_edges)
-        .method("total_edge_distance", &voronoicell_neighbor::total_edge_distance)
+        //.method("total_edge_distance", &voronoicell_neighbor::total_edge_distance)
         .method("number_of_faces", &voronoicell_neighbor::number_of_faces)
         .method("surface_area", &voronoicell_neighbor::surface_area)
         .method("draw_gnuplot!", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_gnuplot))
         .method("draw_pov", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov))
         .method("draw_pov_mesh", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov_mesh))
-        .method("init_octahedron", static_cast<void (voronoicell_neighbor::*)(double)>(&voronoicell_neighbor::init_octahedron))
         .method("plane_intersects", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects))
         .method(
             "centroid",
@@ -419,13 +428,11 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         )
         .method("nplane", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double, int)>(&voronoicell_neighbor::nplane))
         .method("nplane", static_cast<bool (voronoicell_neighbor::*)(double, double, double, int)>(&voronoicell_neighbor::nplane))
-        .method("init_tetrahedron", static_cast<void (voronoicell_neighbor::*)(double, double, double, double, double, double, double, double, double, double, double, double)>(&voronoicell_neighbor::init_tetrahedron))
-
         // Inherited from voronoicell_base
-        .method("init_base", static_cast<void (voronoicell_neighbor::*)(double, double, double, double, double, double)>(&voronoicell_neighbor::init_base))
-        .method("init_octahedron_base", static_cast<void (voronoicell_neighbor::*)(double)>(&voronoicell_neighbor::init_octahedron_base))
-        .method("init_tetrahedron_base", static_cast<void (voronoicell_neighbor::*)(double, double, double, double, double, double, double, double, double, double, double, double)>(&voronoicell_neighbor::init_tetrahedron_base))
-        .method("translate", static_cast<void (voronoicell_neighbor::*)(double, double, double)>(&voronoicell_neighbor::translate))
+        .method(
+            "__cxxwrap_translate!",
+            &voronoicell_neighbor::translate
+        )
         .method("plane_intersects_guess", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects_guess))
         .method("construct_relations", &voronoicell_neighbor::construct_relations)
         .method("print_edges", &voronoicell_neighbor::print_edges)
