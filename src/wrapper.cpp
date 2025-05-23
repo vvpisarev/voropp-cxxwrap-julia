@@ -122,11 +122,11 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     )
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
         .method(
-            "__cxxwrap_add_point!",
+            "__cxxwrap_put!",
             static_cast<void (container::*)(int, double, double, double)>(&container::put)
         )
         .method(
-            "__cxxwrap_add_point!",
+            "__cxxwrap_put!",
             static_cast<void (container::*)(particle_order&, int, double, double, double)>(&container::put)
         )
         .method(
@@ -239,7 +239,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     )
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
         .method(
-            "__cxxwrap_add_point!",
+            "__cxxwrap_put!",
             static_cast<void (container_poly::*)(int, double, double, double, double)>(&container_poly::put)
         )
         .method("import!", static_cast<void (container_poly::*)(const char*)>(&container_poly::import))
@@ -385,7 +385,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .constructor<double>()
         .constructor<container&>()
         .constructor<container_poly&>()
-        .constructor<container_periodic_poly&>()
         .method(
             "__cxxwrap_init!",
             &voronoicell_neighbor::init
@@ -420,7 +419,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("plane_intersects", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects))
         .method(
             "centroid",
-            [] (voronoicell& v) {
+            [] (voronoicell_neighbor& v) {
                 double x, y, z;
                 v.centroid(x, y, z);
                 return std::make_tuple(x, y, z);
@@ -447,9 +446,9 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         ;
 
     // Class Containter Periodic Poly (conprdply)
-    mod.add_type<container_periodic_poly>("Container_Periodic_Poly")
+    mod.add_type<container_periodic_poly>("RawContainerTriclinic")
         .constructor<double, double, double, double, double, double, int, int, int, int>()
-        .method("conprdply_add_point!", static_cast<void (container_periodic_poly::*)(int, double, double, double, double)>(&container_periodic_poly::put))
+        .method("__cxxwrap_put!", static_cast<void (container_periodic_poly::*)(int, double, double, double, double)>(&container_periodic_poly::put))
         // Type mismatch from Voro++
         //.method("conprdply_compute_ghost_cell", static_cast<bool (container_periodic_poly::*)(voronoicell&, double, double, double, double)>(&container_periodic_poly::compute_ghost_cell))
         .method("conprdply_draw_particles", static_cast<void (container_periodic_poly::*)(const char*)>(&container_periodic_poly::draw_particles))
@@ -476,10 +475,10 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.method("__get_pts", &get_pts);
 
     // Anonymus functions for special cases when two types are needed
-    mod.method("compute_cell!", [] (voronoicell& vc, container& con, c_loop_all& itr) {return con.compute_cell(vc, itr);});
-    mod.method("compute_cell!", [] (voronoicell& vc, container& con, int ijk, int q) {return con.compute_cell(vc, ijk, q);});
-    mod.method("compute_ghost_cell!", [] (voronoicell& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
-    mod.method("apply_walls!", [] (voronoicell& vc, container& con, double x, double y, double z){ return con.apply_walls(vc, x, y, z);});
+    mod.method("compute_cell!", [] (voronoicell_neighbor& vc, container& con, c_loop_all& itr) {return con.compute_cell(vc, itr);});
+    mod.method("compute_cell!", [] (voronoicell_neighbor& vc, container& con, int ijk, int q) {return con.compute_cell(vc, ijk, q);});
+    mod.method("compute_ghost_cell!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
+    mod.method("apply_walls!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z){ return con.apply_walls(vc, x, y, z);});
 
     // Public Menbers from Container Class
     mod.method("get_particle_id", &get_particle_id);
