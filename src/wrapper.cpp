@@ -2,6 +2,23 @@
 #include "jlcxx/tuple.hpp"
 #include "voro++.hh"
 
+/* # General notes
+   Exported names starting with __cxxwrap_ mean that the return type or signature 
+   is to be altered in the exported Julia code.
+   ## Examples
+   
+   * The Julia function will return the modified cell:
+
+   void compute_cell(voronoicell& vc, container& con, c_loop_all& cl) {
+        con.compute_cell(vc, cl);
+   }
+
+   * bool is wrapped as CxxBool, needs conversion to Bool to use in logical expressions
+
+   bool is_periodic_x(container& con) {
+        return con.xperiodic;
+   }
+*/
 
 /* Get and Set methods for accessing public members from voronoicell class cel.hh*/
 
@@ -259,7 +276,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             &c_loop_all::start
         )
         .method(
-            "__cxxwrap_next!",
+            "__cxxwrap_inc!",
             &c_loop_all::inc
         )
         // Inherited from c_loop_base
@@ -298,7 +315,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             &c_loop_subset::start
         )
         .method(
-            "__cxxwrap_next!",
+            "__cxxwrap_inc!",
             &c_loop_subset::inc
         )
         .method(
@@ -349,7 +366,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             &c_loop_order::start
         )
         .method(
-            "__cxxwrap_next",
+            "__cxxwrap_inc!",
             &c_loop_order::inc
         )
         // Inherited from c_loop_base
@@ -475,9 +492,31 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.method("__get_pts", &get_pts);
 
     // Anonymus functions for special cases when two types are needed
-    mod.method("compute_cell!", [] (voronoicell_neighbor& vc, container& con, c_loop_all& itr) {return con.compute_cell(vc, itr);});
-    mod.method("compute_cell!", [] (voronoicell_neighbor& vc, container& con, int ijk, int q) {return con.compute_cell(vc, ijk, q);});
-    mod.method("compute_ghost_cell!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        [] (voronoicell_neighbor& vc, container& con, c_loop_all& itr) {
+            return con.compute_cell(vc, itr);
+        }
+    );
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        [] (voronoicell_neighbor& vc, container& con, c_loop_order& itr) {
+            return con.compute_cell(vc, itr);
+        }
+    );
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        [] (voronoicell_neighbor& vc, container_poly& con, c_loop_all& itr) {
+            return con.compute_cell(vc, itr);
+        }
+    );
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        [] (voronoicell_neighbor& vc, container_poly& con, c_loop_order& itr) {
+            return con.compute_cell(vc, itr);
+        }
+    );
+    mod.method("__cxxwrap_compute_ghost_cell!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
     mod.method("apply_walls!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z){ return con.apply_walls(vc, x, y, z);});
 
     // Public Menbers from Container Class
