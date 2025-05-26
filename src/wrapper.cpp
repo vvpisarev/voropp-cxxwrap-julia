@@ -397,7 +397,9 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
 
     // Class VoronoiCell
-    mod.add_type<voronoicell_neighbor>("VoronoiCell")
+    mod.add_type<voronoicell_neighbor>(
+        "VoronoiCell", jlcxx::julia_type("AbstractVoronoiCell", "VoroPlusPlus")
+    )
         .constructor<>()
         .constructor<double>()
         .constructor<container&>()
