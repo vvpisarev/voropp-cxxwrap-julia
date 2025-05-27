@@ -20,45 +20,6 @@
    }
 */
 
-/* Get and Set methods for accessing public members from voronoicell class cel.hh*/
-
-int get_up(voro::voronoicell_neighbor& v) {
-
-    return v.up;
-}
-
-int get_p(voro::voronoicell_neighbor& v) {
-
-    return v.p;
-}
-
-int get_current_vertices(voro::voronoicell_neighbor& v) {
-
-    return v.current_vertices;
-}
-
-int* get_nu(voro::voronoicell_neighbor& v) {
-
-    return v.nu;
-}
-
-int get_edge(voro::voronoicell_neighbor& v, int i, int j) {
-
-    return v.ed[i][j];
-}
-
-int set_edge(voro::voronoicell_neighbor& v, int k, int i, int j) {
-
-    v.ed[i][j] = k;
-    return k;
-}
-
-double* get_pts(voro::voronoicell_neighbor& v) {
-
-    return v.pts;
-}
-
-
 /* Get and Set methods for accessing public members from container class container.hh */
 int get_particle_id(voro::container& con, int i, int j) {
 
@@ -173,30 +134,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             static_cast<void (container::*)(const char*)>(&container::draw_cells_pov)
         )
         .method(
-            "__cxxwrap_find_cell",
-            [] (container &con, double x, double y, double z)
-            {
-                int pid;
-                double rx, ry, rz;
-                bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);
-                return std::make_tuple(found, pid, rx, ry, rz);
-            }
-        )
-        .method(
-            "__cxxwrap_periodic",
-            [] (container &con)
-            {
-                return std::make_tuple(con.xperiodic, con.yperiodic, con.zperiodic);
-            }
-        )
-        .method(
-            "__cxxwrap_bounds",
-            [] (container &con)
-            {
-                return std::make_tuple(con.ax, con.ay, con.az, con.bx, con.by, con.bz);
-            }
-        )
-        .method(
             "__cxxwrap_clear!",
             &container::clear
         )
@@ -280,25 +217,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             &c_loop_all::inc
         )
         // Inherited from c_loop_base
-        .method(
-            "pos",
-            [] (c_loop_all &cla)
-            {
-                double x, y, z;
-                cla.pos(x, y, z);
-                return std::make_tuple(x, y, z);
-            }
-        )
-        .method(
-            "particle_info",
-            [] (c_loop_all &cla)
-            {
-                int pid;
-                double x, y, z, r;
-                cla.pos(pid, x, y, z, r);
-                return std::make_tuple(pid, x, y, z, r);
-            }
-        )
         .method("ci_x", &c_loop_all::x)
         .method("ci_y", &c_loop_all::y)
         .method("ci_z", &c_loop_all::z)
@@ -331,25 +249,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             static_cast<void (c_loop_subset::*)(int, int, int, int, int, int)>(&c_loop_subset::setup_intbox)
         )
         // Inherited from c_loop_base
-        .method(
-            "pos",
-            [] (c_loop_subset &cla)
-            {
-                double x, y, z;
-                cla.pos(x, y, z);
-                return std::make_tuple(x, y, z);
-            }
-        )
-        .method(
-            "particle_info",
-            [] (c_loop_subset &cla)
-            {
-                int pid;
-                double x, y, z, r;
-                cla.pos(pid, x, y, z, r);
-                return std::make_tuple(pid, x, y, z, r);
-            }
-        )
         .method("cis_x", &c_loop_subset::x)
         .method("cis_y", &c_loop_subset::y)
         .method("cis_z", &c_loop_subset::z)
@@ -370,25 +269,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             &c_loop_order::inc
         )
         // Inherited from c_loop_base
-        .method(
-            "pos",
-            [] (c_loop_order &cla)
-            {
-                double x, y, z;
-                cla.pos(x, y, z);
-                return std::make_tuple(x, y, z);
-            }
-        )
-        .method(
-            "particle_info",
-            [] (c_loop_order &cla)
-            {
-                int pid;
-                double x, y, z, r;
-                cla.pos(pid, x, y, z, r);
-                return std::make_tuple(pid, x, y, z, r);
-            }
-        )
         .method("cio_x", &c_loop_order::x)
         .method("cio_y", &c_loop_order::y)
         .method("cio_z", &c_loop_order::z)
@@ -436,14 +316,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("draw_pov", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov))
         .method("draw_pov_mesh", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov_mesh))
         .method("plane_intersects", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects))
-        .method(
-            "centroid",
-            [] (voronoicell_neighbor& v) {
-                double x, y, z;
-                v.centroid(x, y, z);
-                return std::make_tuple(x, y, z);
-            }
-        )
         .method("nplane", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double, int)>(&voronoicell_neighbor::nplane))
         .method("nplane", static_cast<bool (voronoicell_neighbor::*)(double, double, double, int)>(&voronoicell_neighbor::nplane))
         // Inherited from voronoicell_base
@@ -483,40 +355,216 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("__cxxwrap_cut_cell!", static_cast<bool (wall_sphere::*)(voronoicell_neighbor&,double,double,double)>(&wall_sphere::cut_cell))
         ;
 
-    
-    // Public Members from VoronoiCell Class
-    mod.method("root_vertex", &get_up);
-    mod.method("num_vertices", &get_p);
-    mod.method("__get_nu", &get_nu);
-    mod.method("__get_current_vertices", &get_current_vertices);
-    mod.method("__get_edge", &get_edge);
-    mod.method("__set_edge!", &set_edge);
-    mod.method("__get_pts", &get_pts);
+    // lambdas for container
+    mod.method(
+        "__cxxwrap_find_cell",
+        static_cast<std::tuple<bool,int,double,double,double> (*)(container&, double, double, double)>(
+            [] (container &con, double x, double y, double z)
+            {
+                int pid;
+                double rx, ry, rz;
+                bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);
+                return std::make_tuple(found, pid, rx, ry, rz);
+            }
+        )
+    );
+    mod.method(
+        "__cxxwrap_periodic",
+        static_cast<std::tuple<bool,bool,bool> (*)(container&)>(
+            [] (container &con)
+            {
+                return std::make_tuple(con.xperiodic, con.yperiodic, con.zperiodic);
+            }
+        )
+    );
+    mod.method(
+        "__cxxwrap_bounds",
+        static_cast<std::tuple<double,double,double,double,double,double> (*)(container&)>(
+            [] (container &con)
+            {
+                return std::make_tuple(con.ax, con.ay, con.az, con.bx, con.by, con.bz);
+            }
+        )
+    );
+
+    // lambdas for voronoicell
+    mod.method(
+        "centroid",
+        static_cast<std::tuple<double,double,double> (*)(voronoicell_neighbor&)>(
+            [] (voronoicell_neighbor& v) {
+                double x, y, z;
+                v.centroid(x, y, z);
+                return std::make_tuple(x, y, z);
+            }
+        )
+    );
+
+    // public attribute accessors
+    mod.method(
+        "__get_current_vertices",
+        static_cast<int (*)(voronoicell_neighbor&)>(
+            [] (voronoicell_neighbor& v) { return v.current_vertices; }
+        )
+    );
+    mod.method(
+        "__get_p",
+        static_cast<int (*)(voronoicell_neighbor&)>(
+            [] (voronoicell_neighbor& v) { return v.p; }
+        )
+    );
+    mod.method(
+        "__get_up",
+        static_cast<int (*)(voronoicell_neighbor&)>(
+            [] (voronoicell_neighbor& v) { return v.up; }
+        )
+    );
+    mod.method(
+        "__cxxwrap_get_ed",
+        static_cast<int** (*)(voronoicell_neighbor&)>(
+            [] (voronoicell_neighbor& v) { return v.ed; }
+        )
+    );
+    mod.method(
+        "__cxxwrap_get_nu",
+        static_cast<int* (*)(voronoicell_neighbor&)>(
+            [] (voronoicell_neighbor& v) { return v.nu; }
+        )
+    );
+    mod.method(
+        "__cxxwrap_get_pts",
+        static_cast<double* (*)(voronoicell_neighbor&)>(
+            [] (voronoicell_neighbor& v) { return v.pts; }
+        )
+    );
+    mod.method(
+        "__cxxwrap_get_mne",
+        static_cast<int** (*)(voronoicell_neighbor&)>(
+            [] (voronoicell_neighbor& v) { return v.mne; }
+        )
+    );
+    mod.method(
+        "__cxxwrap_get_ne",
+        static_cast<int** (*)(voronoicell_neighbor&)>(
+            [] (voronoicell_neighbor& v) { return v.ne; }
+        )
+    );
+    mod.method(
+        "__get_ed_ij",
+        static_cast<int (*)(voronoicell_neighbor&, size_t, size_t)>(
+            [] (voronoicell_neighbor& v, size_t i, size_t j) { return v.ed[i][j]; }
+        )
+    );
+    mod.method(
+        "__set_ed_ij!",
+        static_cast<int (*)(voronoicell_neighbor&, size_t, size_t, int)>(
+            [] (voronoicell_neighbor& v, size_t i, size_t j, int k) { v.ed[i][j] = k; return k; }
+        )
+    );
+
+    // lambdas for loops
+
+    mod.method(
+        "pos",
+        static_cast<std::tuple<double,double,double> (*)(c_loop_all&)>(
+            [] (c_loop_all &cla)
+            {
+                double x, y, z;
+                cla.pos(x, y, z);
+                return std::make_tuple(x, y, z);
+            }
+        )
+    );
+    mod.method(
+        "pos",
+        static_cast<std::tuple<double,double,double> (*)(c_loop_order&)>(
+            [] (c_loop_order &cla)
+            {
+                double x, y, z;
+                cla.pos(x, y, z);
+                return std::make_tuple(x, y, z);
+            }
+        )
+    );
+    mod.method(
+        "pos",
+        static_cast<std::tuple<double,double,double> (*)(c_loop_subset&)>(
+            [] (c_loop_subset &cla)
+            {
+                double x, y, z;
+                cla.pos(x, y, z);
+                return std::make_tuple(x, y, z);
+            }
+        )
+    );
+    mod.method(
+        "particle_info",
+        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_all&)>(
+            [] (c_loop_all &cla)
+            {
+                int pid;
+                double x, y, z, r;
+                cla.pos(pid, x, y, z, r);
+                return std::make_tuple(pid, x, y, z, r);
+            }
+        )
+    );
+    mod.method(
+        "particle_info",
+        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_order&)>(
+            [] (c_loop_order &cla)
+            {
+                int pid;
+                double x, y, z, r;
+                cla.pos(pid, x, y, z, r);
+                return std::make_tuple(pid, x, y, z, r);
+            }
+        )
+    );
+    mod.method(
+        "particle_info",
+        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_subset&)>(
+            [] (c_loop_subset &cla)
+            {
+                int pid;
+                double x, y, z, r;
+                cla.pos(pid, x, y, z, r);
+                return std::make_tuple(pid, x, y, z, r);
+            }
+        )
+    );
 
     // Anonymus functions for special cases when two types are needed
     mod.method(
         "__cxxwrap_compute_cell!",
-        [] (voronoicell_neighbor& vc, container& con, c_loop_all& itr) {
-            return con.compute_cell(vc, itr);
-        }
+        static_cast<bool (*)(voronoicell_neighbor&, container&, c_loop_all&)>(
+            [] (voronoicell_neighbor& vc, container& con, c_loop_all& itr) {
+                return con.compute_cell(vc, itr);
+            }
+        )
     );
     mod.method(
         "__cxxwrap_compute_cell!",
-        [] (voronoicell_neighbor& vc, container& con, c_loop_order& itr) {
-            return con.compute_cell(vc, itr);
-        }
+        static_cast<bool (*)(voronoicell_neighbor&, container&, c_loop_order&)>(
+            [] (voronoicell_neighbor& vc, container& con, c_loop_order& itr) {
+                return con.compute_cell(vc, itr);
+            }
+        )
     );
     mod.method(
         "__cxxwrap_compute_cell!",
-        [] (voronoicell_neighbor& vc, container_poly& con, c_loop_all& itr) {
-            return con.compute_cell(vc, itr);
-        }
+        static_cast<bool (*)(voronoicell_neighbor&, container_poly&, c_loop_all&)>(
+            [] (voronoicell_neighbor& vc, container_poly& con, c_loop_all& itr) {
+                return con.compute_cell(vc, itr);
+            }
+        )
     );
     mod.method(
         "__cxxwrap_compute_cell!",
-        [] (voronoicell_neighbor& vc, container_poly& con, c_loop_order& itr) {
-            return con.compute_cell(vc, itr);
-        }
+        static_cast<bool (*)(voronoicell_neighbor&, container_poly&, c_loop_order&)>(
+            [] (voronoicell_neighbor& vc, container_poly& con, c_loop_order& itr) {
+                return con.compute_cell(vc, itr);
+            }
+        )
     );
     mod.method("__cxxwrap_compute_ghost_cell!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
     mod.method("apply_walls!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z){ return con.apply_walls(vc, x, y, z);});
