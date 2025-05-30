@@ -1,5 +1,6 @@
 #include "jlcxx/jlcxx.hpp"
 #include "jlcxx/tuple.hpp"
+#include "jlcxx/stl.hpp"
 #include "voro++.hh"
 
 /* # General notes
@@ -458,6 +459,12 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         "__set_ed_ij!",
         static_cast<int (*)(voronoicell_neighbor&, size_t, size_t, int)>(
             [] (voronoicell_neighbor& v, size_t i, size_t j, int k) { v.ed[i][j] = k; return k; }
+        )
+    );
+    mod.method(
+        "__cxxwrap_get_neighbors!",
+        static_cast<void (*)(std::vector<int>&, voronoicell_neighbor&)>(
+            [] (std::vector<int>& v, voronoicell_neighbor& vc) { vc.neighbors(v); }   
         )
     );
 
