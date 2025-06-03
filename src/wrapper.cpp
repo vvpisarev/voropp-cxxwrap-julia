@@ -467,6 +467,12 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             [] (std::vector<int>& v, voronoicell_neighbor& vc) { vc.neighbors(v); }   
         )
     );
+    mod.method(
+        "__cxxwrap_vertices!",
+        static_cast<void (*)(std::vector<double>&, voronoicell_neighbor&)>(
+            [] (std::vector<double>& v, voronoicell_neighbor& vc) { vc.vertices(v); }   
+        )
+    );
 
     // lambdas for loops
 
