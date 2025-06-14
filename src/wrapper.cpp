@@ -298,12 +298,12 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             &voronoicell_neighbor::init_tetrahedron
         )
         .method(
-            "__cxxwrap_plane!",
-            static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane)
+            "__cxxwrap_nplane!",
+            static_cast<bool (voronoicell_neighbor::*)(double, double, double, double, int)>(&voronoicell_neighbor::nplane)
         )
         .method(
-            "__cxxwrap_plane!",
-            static_cast<bool (voronoicell_neighbor::*)(double, double, double)>(&voronoicell_neighbor::plane)
+            "__cxxwrap_nplane!",
+            static_cast<bool (voronoicell_neighbor::*)(double, double, double, int)>(&voronoicell_neighbor::nplane)
         )
         .method("volume", &voronoicell_neighbor::volume)
         //.method("check_relations", &voronoicell_neighbor::check_relations)
@@ -317,8 +317,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("draw_pov", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov))
         .method("draw_pov_mesh", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov_mesh))
         .method("plane_intersects", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects))
-        .method("nplane", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double, int)>(&voronoicell_neighbor::nplane))
-        .method("nplane", static_cast<bool (voronoicell_neighbor::*)(double, double, double, int)>(&voronoicell_neighbor::nplane))
         // Inherited from voronoicell_base
         .method(
             "__cxxwrap_translate!",
