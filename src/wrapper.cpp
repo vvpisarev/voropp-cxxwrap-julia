@@ -388,7 +388,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     // lambdas for voronoicell
     mod.method(
-        "centroid",
+        "__cxxwrap_centroid",
         static_cast<std::tuple<double,double,double> (*)(voronoicell_neighbor&)>(
             [] (voronoicell_neighbor& v) {
                 double x, y, z;
@@ -469,6 +469,15 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         "__cxxwrap_vertices!",
         static_cast<void (*)(std::vector<double>&, voronoicell_neighbor&)>(
             [] (std::vector<double>& v, voronoicell_neighbor& vc) { vc.vertices(v); }   
+        )
+    );
+    mod.method(
+        "__cxxwrap_vertices!",
+        static_cast<void (*)(std::vector<double>&, voronoicell_neighbor&, double, double, double)>(
+            [] (std::vector<double>& v, voronoicell_neighbor& vc, double x, double y, double z)
+            {
+                vc.vertices(x, y, z, v);
+            }   
         )
     );
 
