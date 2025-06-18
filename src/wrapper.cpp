@@ -310,10 +310,15 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         //.method("check_duplicates", &voronoicell_neighbor::check_duplicates)
         //.method("max_radius_squared", &voronoicell_neighbor::max_radius_squared)
         .method("number_of_edges", &voronoicell_neighbor::number_of_edges)
-        //.method("total_edge_distance", &voronoicell_neighbor::total_edge_distance)
+        .method("total_edge_distance", &voronoicell_neighbor::total_edge_distance)
         .method("number_of_faces", &voronoicell_neighbor::number_of_faces)
         .method("surface_area", &voronoicell_neighbor::surface_area)
-        .method("draw_gnuplot!", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_gnuplot))
+        .method(
+            "draw_gnuplot",
+            static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(
+                &voronoicell_neighbor::draw_gnuplot
+            )
+        )
         .method("draw_pov", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov))
         .method("draw_pov_mesh", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov_mesh))
         .method("plane_intersects", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects))
@@ -327,12 +332,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("print_edges", &voronoicell_neighbor::print_edges)
         .method("__cycle_up", static_cast<int (voronoicell_neighbor::*)(int, int)>(&voronoicell_neighbor::cycle_up))
         .method("__cycle_down", static_cast<int (voronoicell_neighbor::*)(int, int)>(&voronoicell_neighbor::cycle_down))
-
-        //.method("output_vertices!", static_cast<void (voronoicell::*)(FILE*)>(&voronoicell::output_vertices))
-        //.method("output_vertices!", static_cast<void (voronoicell::*)(double, double, double, FILE*)>(&voronoicell::output_vertices));
-        //.method("draw_gnuplot", static_cast<void (voronoicell::*)(double, double, double, FILE*)>(&voronoicell::draw_gnuplot))
-        //.method("reset_edges", &voronoicell::reset_edges)
-        //.method("reset_edges", [](const voronoicell& c) { return dynamic_cast<const C*>(&c)->data; });
         ;
 
     // Class Containter Periodic Poly (conprdply)
@@ -489,9 +488,26 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             }
         )
     );
+    mod.method(
+        "__cxxwrap_face_vertices!",
+        static_cast<void (*)(std::vector<int>&, voronoicell_neighbor&)>(
+            [](std::vector<int>& v, voronoicell_neighbor& vc)
+            {
+                vc.face_vertices(v);
+            }
+        )
+    );
+    mod.method(
+        "__cxxwrap_face_orders!",
+        static_cast<void (*)(std::vector<int>&, voronoicell_neighbor&)>(
+            [](std::vector<int>& v, voronoicell_neighbor& vc)
+            {
+                vc.face_orders(v);
+            }
+        )
+    );
 
     // lambdas for loops
-
     mod.method(
         "pos",
         static_cast<std::tuple<double,double,double> (*)(c_loop_all&)>(
