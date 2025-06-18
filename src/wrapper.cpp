@@ -480,6 +480,15 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             }   
         )
     );
+    mod.method(
+        "__cxxwrap_face_perimeters!",
+        static_cast<void (*)(std::vector<double>&, voronoicell_neighbor&)>(
+            [](std::vector<double>& v, voronoicell_neighbor& vc)
+            {
+                vc.face_perimeters(v);
+            }
+        )
+    );
 
     // lambdas for loops
 
