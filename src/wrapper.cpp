@@ -353,35 +353,60 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("__cxxwrap_cut_cell!", static_cast<bool (wall_sphere::*)(voronoicell_neighbor&,double,double,double)>(&wall_sphere::cut_cell))
         ;
 
-    // lambdas for container
+    // lambdas for container and container_poly
+
+    auto __cxxwrap_find_cell = [] (auto &con, double x, double y, double z)
+    {
+        int pid;
+        double rx, ry, rz;
+        bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);
+        return std::make_tuple(found, pid, rx, ry, rz);
+    };
+
+    auto __cxxwrap_periodic = [] (auto &con)
+    {
+        return std::make_tuple(con.xperiodic, con.yperiodic, con.zperiodic);
+    };
+
+    auto __cxxwrap_bounds = [] (auto &con)
+    {
+        return std::make_tuple(con.ax, con.ay, con.az, con.bx, con.by, con.bz);
+    };
+    
     mod.method(
         "__cxxwrap_find_cell",
         static_cast<std::tuple<bool,int,double,double,double> (*)(container&, double, double, double)>(
-            [] (container &con, double x, double y, double z)
-            {
-                int pid;
-                double rx, ry, rz;
-                bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);
-                return std::make_tuple(found, pid, rx, ry, rz);
-            }
+            __cxxwrap_find_cell
+        )
+    );
+    mod.method(
+        "__cxxwrap_find_cell",
+        static_cast<std::tuple<bool,int,double,double,double> (*)(container_poly&, double, double, double)>(
+            __cxxwrap_find_cell
         )
     );
     mod.method(
         "__cxxwrap_periodic",
         static_cast<std::tuple<bool,bool,bool> (*)(container&)>(
-            [] (container &con)
-            {
-                return std::make_tuple(con.xperiodic, con.yperiodic, con.zperiodic);
-            }
+            __cxxwrap_periodic
+        )
+    );
+        mod.method(
+        "__cxxwrap_periodic",
+        static_cast<std::tuple<bool,bool,bool> (*)(container_poly&)>(
+            __cxxwrap_periodic
         )
     );
     mod.method(
         "__cxxwrap_bounds",
         static_cast<std::tuple<double,double,double,double,double,double> (*)(container&)>(
-            [] (container &con)
-            {
-                return std::make_tuple(con.ax, con.ay, con.az, con.bx, con.by, con.bz);
-            }
+            __cxxwrap_bounds
+        )
+    );
+    mod.method(
+        "__cxxwrap_bounds",
+        static_cast<std::tuple<double,double,double,double,double,double> (*)(container_poly&)>(
+            __cxxwrap_bounds
         )
     );
 
