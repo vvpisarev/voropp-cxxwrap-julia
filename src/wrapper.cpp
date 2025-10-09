@@ -82,17 +82,39 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     ;
 
     // Class Wall   
-    mod.add_type<wall>("Wall")
-        .method("point_inside", static_cast<bool (wall::*)(double,double,double)>(&wall::point_inside))
-        //.method("cut_cell", &wall::cut_cell)
-        ;
-    
-    
+    mod.add_type<wall_sphere>(
+        "WallSphere", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
+    )
+        .constructor<double, double, double, double>()
+        .constructor<double, double, double, double, int>()
+    ;
+
+    mod.add_type<wall_cylinder>(
+        "WallCylinder", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
+    )
+        .constructor<double, double, double, double, double, double, double, int>()
+        .constructor<double, double, double, double, double, double, double>()
+    ;
+
+    mod.add_type<wall_cone>(
+        "WallCone", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
+    )
+        .constructor<double, double, double, double, double, double, double, int>()
+        .constructor<double, double, double, double, double, double, double>()
+    ;
+
+    mod.add_type<wall_plane>(
+        "WallPlane", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
+    )
+        .constructor<double, double, double, double, int>()
+        .constructor<double, double, double, double>()
+    ;
+
     // Class Wall_List
-    mod.add_type<wall_list>("Wall_List")
-        .constructor<>()
-        .method("add_wall", static_cast<void (wall_list::*)(wall&)>(&wall_list::add_wall))
-        ;
+    // mod.add_type<wall_list>("Wall_List")
+    //     .constructor<>()
+    //     .method("add_wall", static_cast<void (wall_list::*)(wall&)>(&wall_list::add_wall))
+    //     ;
 
 
     // Class Container
@@ -178,13 +200,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             "total_particles",
             &container::total_particles
         )
-        // Type mismatch from Voro++
-        //.method("contains_neighbor", static_cast<void (container::*)(const char*)>(&container::contains_neighbor))
-        .method("add_wall!", static_cast<void (container::*)(wall&)>(&container::add_wall))
-        .method("add_wall!", static_cast<void (container::*)(wall_list&)>(&container::add_wall))
-        .method("point_inside_walls", static_cast<bool (container::*)(double, double, double)>(&container::point_inside_walls))
-        // When exporting to Julia, it is needed to defien first voronoicell type
-        //.method("apply_walls", static_cast<bool (container::*)(voro::voronoicell&, double, double, double)>(&container::apply_walls))
+        //.method("add_wall!", static_cast<void (container::*)(wall_list&)>(&container::add_wall))
         ;
 
 
@@ -344,14 +360,94 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("conprdply_draw_cells_gnuplot", static_cast<void (container_periodic_poly::*)(const char*)>(&container_periodic_poly::draw_cells_gnuplot))
         .method("conprdply_draw_domain_gnuplot", static_cast<void (container_periodic_poly::*)(const char*)>(&container_periodic_poly::draw_domain_gnuplot))
         ;
-        
 
-    // Class Wall_Sphere
-    mod.add_type<wall_sphere>("Wall_Sphere")
-        .constructor<double, double, double, double, int>()
-        .method("point_inside_wph", static_cast<bool (wall_sphere::*)(double, double, double)>(&wall_sphere::point_inside))
-        .method("__cxxwrap_cut_cell!", static_cast<bool (wall_sphere::*)(voronoicell_neighbor&,double,double,double)>(&wall_sphere::cut_cell))
-        ;
+    // lambdas for walls
+
+    auto __cxxwrap_add_wall = [] (auto &con, auto &wall) { con.add_wall(wall); };
+            // Type mismatch from Voro++
+        //.method("contains_neighbor", static_cast<void (container::*)(const char*)>(&container::contains_neighbor))
+    mod.method("__cxxwrap_add_wall!",
+        static_cast<void (*)(container&, wall_plane&)>(__cxxwrap_add_wall)
+    );
+    mod.method("__cxxwrap_add_wall!",
+        static_cast<void (*)(container&, wall_sphere&)>(__cxxwrap_add_wall)
+    );
+    mod.method("__cxxwrap_add_wall!",
+        static_cast<void (*)(container&, wall_cylinder&)>(__cxxwrap_add_wall)
+    );
+    mod.method("__cxxwrap_add_wall!",
+        static_cast<void (*)(container&, wall_cone&)>(__cxxwrap_add_wall)
+    );
+    mod.method("__cxxwrap_add_wall!",
+        static_cast<void (*)(container_poly&, wall_plane&)>(__cxxwrap_add_wall)
+    );
+    mod.method("__cxxwrap_add_wall!",
+        static_cast<void (*)(container_poly&, wall_sphere&)>(__cxxwrap_add_wall)
+    );
+    mod.method("__cxxwrap_add_wall!",
+        static_cast<void (*)(container_poly&, wall_cylinder&)>(__cxxwrap_add_wall)
+    );
+    mod.method("__cxxwrap_add_wall!",
+        static_cast<void (*)(container_poly&, wall_cone&)>(__cxxwrap_add_wall)
+    );
+
+    auto __cxxwrap_point_inside = [] (auto &w, double x, double y, double z) 
+    {
+        return w.point_inside(x, y, z);
+    };
+
+    mod.method(
+        "__cxxwrap_point_inside",
+        static_cast<bool (*)(wall_sphere&, double, double, double)>(__cxxwrap_point_inside)
+    );
+
+    mod.method(
+        "__cxxwrap_point_inside",
+        static_cast<bool (*)(wall_cylinder&, double, double, double)>(__cxxwrap_point_inside)
+    );
+
+    mod.method(
+        "__cxxwrap_point_inside",
+        static_cast<bool (*)(wall_cone&, double, double, double)>(__cxxwrap_point_inside)
+    );
+
+    mod.method(
+        "__cxxwrap_point_inside",
+        static_cast<bool (*)(wall_plane&, double, double, double)>(__cxxwrap_point_inside)
+    );
+
+    auto __cxxwrap_point_inside_walls = 
+        [] (auto &con, double x, double y, double z) 
+        {
+            return con.point_inside_walls(x, y, z);
+        };
+
+    mod.method(
+        "__cxxwrap_point_inside_walls",
+        static_cast<bool (*)(container&, double, double, double)>(__cxxwrap_point_inside_walls)
+    );
+    mod.method(
+        "__cxxwrap_point_inside_walls",
+        static_cast<bool (*)(container_poly&, double, double, double)>(__cxxwrap_point_inside_walls)
+    );
+
+    // mod.method(
+    //     "__cxxwrap_point_inside",
+    //     static_cast<bool (*)(double, double, double, wall&)>(
+    //         [] (double x, double y, double z, wall& w) {
+    //             return w.point_inside(x, y, z);
+    //         }
+    //     )
+    // );
+
+    // mod.method(
+    //     "__cxxwrap_cut_cell!",
+    //     static_cast<bool (*)(voronoicell_neighbor&, double, double, double, wall&)>(
+    //         [] (voronoicell_neighbor& vc, double x, double y, double z, wall& w) {
+    //             return w.cut_cell(vc, x, y, z);
+    //         }
+    //     )
+    // );
 
     // lambdas for container and container_poly
 
