@@ -16,6 +16,10 @@ macro(load_version_json version_filepath)
     endif()
 endmacro()
 
+if (POLICY CMP0048)
+    cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
+
 load_version_json(${CMAKE_CURRENT_LIST_DIR}/version.json)
 project(voropp-cxxwrap-julia
     VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}

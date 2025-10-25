@@ -729,16 +729,5 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.method("apply_walls!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z){ return con.apply_walls(vc, x, y, z);});
 
     // Public Menbers from Container Class
-    mod.method("get_particle_id", &get_particle_id);
-
-    ///////////////////////// refactors for Ref substitution //////////////////////
-
-    // mod.method("find_voro_cell", [] (container& con, double x, double y, double z) { double rx, ry, rz; 
-    //     int pid; bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid); 
-    //     return std::make_tuple(found, rx, ry, rz, pid);});
-
-    // mod.method("get_centroid", [] (voronoicell& v) {double x, y, z; v.centroid(x, y, z); return std::make_tuple(x,y,z);});
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    // mod.method("get_particle_id", &get_particle_id);
 }
