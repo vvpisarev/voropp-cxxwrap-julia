@@ -19,13 +19,14 @@ cd voro
 cmake -B build -DCMAKE_INSTALL_PREFIX=$prefix -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TARGET_TOOLCHAIN} -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_BUILD_TYPE=Release -DVORO_BUILD_EXAMPLES=OFF -DVORO_BUILD_CMD_LINE=OFF -DVORO_ENABLE_DOXYGEN=OFF
 cmake --build build --parallel ${nproc}
 cmake --install build
-install_license /workspace/srcdir/voro/LICENSE
+mkdir $prefix/share/licenses/voro && cp LICENSE $prefix/share/licenses/voro
 
 cd ../
 cd voropp-cxxwrap-julia
 cmake -B build -DCMAKE_INSTALL_PREFIX=$prefix -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TARGET_TOOLCHAIN} -DCMAKE_INSTALL_PREFIX=$prefix -DJulia_PREFIX=$prefix -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 cmake --install build
+install_license $WORKSPACE/srcdir/voropp-cxxwrap-julia/LICENSE
 """
 
 julia_versions = [v"1.10", v"1.11", v"1.12"]
