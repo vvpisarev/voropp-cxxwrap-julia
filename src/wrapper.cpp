@@ -22,10 +22,9 @@
 */
 
 /* Get and Set methods for accessing public members from container class container.hh */
-int get_particle_id(voro::container& con, int i, int j) {
-
-    return con.id[i][j];
-}
+// int get_particle_id(voro::container& con, int i, int j) {
+//     return con.id[i][j];
+// }
 
 
 
@@ -62,12 +61,6 @@ extern "C" {
     
     // Version implemented from Voro++  >>>  inline void output_face_vertices(FILE *fp=stdout), ignoring stdout by default
     void output_face_vertices_vorocell(voro::voronoicell_neighbor* vc, FILE *fp) { vc->output_face_vertices(fp); }
-
-    bool compute_ghost_cell_conprdply(voro::container_periodic_poly* con, voro::voronoicell_neighbor* c, double x, double y, double z, double r) {
-
-        return con->compute_ghost_cell(c, x, y, z, r);
-    }
-
 }
 
 JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
