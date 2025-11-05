@@ -46,7 +46,7 @@ message(STATUS "Found Voro++ at ${VORO_location}")
 
 add_library(voro++wrap SHARED src/wrapper.cpp)
 
-target_link_libraries(voro++wrap PUBLIC JlCxx::cxxwrap_julia VORO::voro++)
+target_link_libraries(voro++wrap PUBLIC JlCxx::cxxwrap_julia JlCxx::cxxwrap_julia_stl VORO::voro++)
 
 install(TARGETS
   voro++wrap

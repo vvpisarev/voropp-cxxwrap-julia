@@ -3,7 +3,7 @@
 using BinaryBuilder, Pkg
 
 name = "voropp_wrapper"
-version = v"0.1.1"
+version = v"0.1.2"
 
 basepath = dirname(@__DIR__)
 # Collection of sources required to complete build
@@ -33,19 +33,8 @@ julia_versions = [v"1.10", v"1.11", v"1.12"]
 # These are the platforms we will build for by default, unless further
 # platforms are passed in on the command line
 platforms = [Platform(arch, "linux"; libc = "glibc", julia_version=jv) for arch in ("i686", "x86_64", "aarch64") for jv in julia_versions]
-#    Platform("i686", "linux"; libc = "glibc"),
-#    Platform("x86_64", "linux"; libc = "glibc", julia_version="1.10"),
-#    Platform("aarch64", "linux"; libc = "glibc"),
-#    Platform("armv6l", "linux"; call_abi = "eabihf", libc = "glibc"),
-#    Platform("armv7l", "linux"; call_abi = "eabihf", libc = "glibc"),
-#    Platform("powerpc64le", "linux"; libc = "glibc"),
-#    Platform("riscv64", "linux"; libc = "glibc"),
-#    Platform("x86_64", "linux"; libc = "musl"),
-#    Platform("aarch64", "linux"; libc = "musl"),
-#    Platform("armv6l", "linux"; call_abi = "eabihf", libc = "musl"),
-#    Platform("armv7l", "linux"; call_abi = "eabihf", libc = "musl")
-#    Platform("x86_64", "windows"; )
-#]
+
+append!(platforms, Platform("x86_64", "windows"; julia_version=jv) for jv in julia_versions)
 
 platforms = expand_cxxstring_abis(platforms)
 
@@ -57,7 +46,7 @@ products = [
 
 # Dependencies that must be installed before this package can be built
 dependencies = [
-    Dependency("libcxxwrap_julia_jll"; compat="0.14.3")
+    Dependency("libcxxwrap_julia_jll"; compat="0.14")
     BuildDependency("libjulia_jll")
     Dependency("CompilerSupportLibraries_jll")
 ]
