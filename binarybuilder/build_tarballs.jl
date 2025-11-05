@@ -3,7 +3,7 @@
 using BinaryBuilder, Pkg
 
 name = "voropp_wrapper"
-version = v"0.1.0"
+version = v"0.1.1"
 
 basepath = dirname(@__DIR__)
 # Collection of sources required to complete build
@@ -59,6 +59,7 @@ products = [
 dependencies = [
     Dependency("libcxxwrap_julia_jll"; compat="0.14.3")
     BuildDependency("libjulia_jll")
+    Dependency("CompilerSupportLibraries_jll")
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
