@@ -165,24 +165,8 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             "__cxxwrap_isinside", 
             static_cast<bool (container::*)(double, double, double)>(&container::point_inside)
         )
-        .method(
-            "region_count",
-            &container::region_count
-        )
         // When exporting to Julia, it is needed to defien first voronoicell type
         //.method("initialize_voronoicell", static_cast<bool (container::*)(voro::voronoicell&, int, int, int, int, int, int&, int&, int&, double&, double&, double&, int&)>(&container::initialize_voronoicell))
-        .method(
-            "initialize_search",
-            static_cast<void (container::*)(int, int, int, int, int&, int&, int&, int&)>(&container::initialize_search)
-        )
-        .method(
-            "frac_pos",
-            static_cast<void (container::*)(double, double, double, double, double, double, double&, double&, double&)>(&container::frac_pos)
-        )
-        .method(
-            "region_index",
-            static_cast<int (container::*)(int, int, int, int, int, int, double&, double&, double&, int&)>(&container::region_index)
-        )
         .method("draw_domain_gnuplot",
             static_cast<void (container::*)(const char*)>(&container::draw_domain_gnuplot)
         )
@@ -323,21 +307,19 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("number_of_faces", &voronoicell_neighbor::number_of_faces)
         .method("surface_area", &voronoicell_neighbor::surface_area)
         .method(
-            "draw_gnuplot",
+            "__cxxwrap_draw_gnuplot",
             static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(
                 &voronoicell_neighbor::draw_gnuplot
             )
         )
-        .method("draw_pov", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov))
-        .method("draw_pov_mesh", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov_mesh))
-        .method("plane_intersects", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects))
+        .method("__cxxwrap_draw_pov", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov))
+        .method("__cxxwrap_draw_pov_mesh", static_cast<void (voronoicell_neighbor::*)(double, double, double, const char*)>(&voronoicell_neighbor::draw_pov_mesh))
+        .method("__cxxwrap_plane_intersects", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects))
         // Inherited from voronoicell_base
         .method(
             "__cxxwrap_translate!",
             &voronoicell_neighbor::translate
         )
-        .method("plane_intersects_guess", static_cast<bool (voronoicell_neighbor::*)(double, double, double, double)>(&voronoicell_neighbor::plane_intersects_guess))
-        .method("construct_relations", &voronoicell_neighbor::construct_relations)
         .method("print_edges", &voronoicell_neighbor::print_edges)
         .method("__cycle_up", static_cast<int (voronoicell_neighbor::*)(int, int)>(&voronoicell_neighbor::cycle_up))
         .method("__cycle_down", static_cast<int (voronoicell_neighbor::*)(int, int)>(&voronoicell_neighbor::cycle_down))
@@ -603,6 +585,15 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         )
     );
     mod.method(
+        "__cxxwrap_face_areas!",
+        static_cast<void (*)(std::vector<double>&, voronoicell_neighbor&)>(
+            [](std::vector<double>& v, voronoicell_neighbor& vc)
+            {
+                vc.face_areas(v);
+            }
+        )
+    );
+    mod.method(
         "__cxxwrap_face_vertices!",
         static_cast<void (*)(std::vector<int>&, voronoicell_neighbor&)>(
             [](std::vector<int>& v, voronoicell_neighbor& vc)
@@ -620,112 +611,111 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             }
         )
     );
+    mod.method(
+        "__cxxwrap_face_freq_table!",
+        static_cast<void (*)(std::vector<int>&, voronoicell_neighbor&)>(
+            [](std::vector<int>& v, voronoicell_neighbor& vc)
+            {
+                vc.face_freq_table(v);
+            }
+        )
+    );
 
     // lambdas for loops
+
+    auto pos = [] (auto &cl) 
+    {
+        double x, y, z;
+        cl.pos(x, y, z);
+        return std::make_tuple(x, y, z);
+    };
+
+    auto particle_info = [] (auto &cl)
+    {
+        int pid;
+        double x, y, z, r;
+        cl.pos(pid, x, y, z, r);
+        return std::make_tuple(pid, x, y, z, r);
+    };
+
     mod.method(
         "pos",
-        static_cast<std::tuple<double,double,double> (*)(c_loop_all&)>(
-            [] (c_loop_all &cla)
-            {
-                double x, y, z;
-                cla.pos(x, y, z);
-                return std::make_tuple(x, y, z);
-            }
-        )
-    );
-    mod.method(
-        "pos",
-        static_cast<std::tuple<double,double,double> (*)(c_loop_order&)>(
-            [] (c_loop_order &cla)
-            {
-                double x, y, z;
-                cla.pos(x, y, z);
-                return std::make_tuple(x, y, z);
-            }
-        )
+        static_cast<std::tuple<double,double,double> (*)(c_loop_all&)>(pos)
     );
     mod.method(
         "pos",
-        static_cast<std::tuple<double,double,double> (*)(c_loop_subset&)>(
-            [] (c_loop_subset &cla)
-            {
-                double x, y, z;
-                cla.pos(x, y, z);
-                return std::make_tuple(x, y, z);
-            }
-        )
+        static_cast<std::tuple<double,double,double> (*)(c_loop_order&)>(pos)
+    );
+    mod.method(
+        "pos",
+        static_cast<std::tuple<double,double,double> (*)(c_loop_subset&)>(pos)
     );
     mod.method(
         "particle_info",
-        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_all&)>(
-            [] (c_loop_all &cla)
-            {
-                int pid;
-                double x, y, z, r;
-                cla.pos(pid, x, y, z, r);
-                return std::make_tuple(pid, x, y, z, r);
-            }
-        )
+        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_all&)>(particle_info)
     );
     mod.method(
         "particle_info",
-        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_order&)>(
-            [] (c_loop_order &cla)
-            {
-                int pid;
-                double x, y, z, r;
-                cla.pos(pid, x, y, z, r);
-                return std::make_tuple(pid, x, y, z, r);
-            }
-        )
+        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_order&)>(particle_info)
     );
     mod.method(
         "particle_info",
-        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_subset&)>(
-            [] (c_loop_subset &cla)
-            {
-                int pid;
-                double x, y, z, r;
-                cla.pos(pid, x, y, z, r);
-                return std::make_tuple(pid, x, y, z, r);
-            }
-        )
+        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_subset&)>(particle_info)
     );
 
     // Anonymus functions for special cases when two types are needed
+    auto compute_cell = [] (voronoicell_neighbor& vc, auto& con, auto& itr)
+    {
+        return con.compute_cell(vc, itr);
+    };
+    
     mod.method(
         "__cxxwrap_compute_cell!",
-        static_cast<bool (*)(voronoicell_neighbor&, container&, c_loop_all&)>(
-            [] (voronoicell_neighbor& vc, container& con, c_loop_all& itr) {
-                return con.compute_cell(vc, itr);
-            }
-        )
+        static_cast<bool (*)(voronoicell_neighbor&, container&, c_loop_all&)>(compute_cell)
     );
     mod.method(
         "__cxxwrap_compute_cell!",
-        static_cast<bool (*)(voronoicell_neighbor&, container&, c_loop_order&)>(
-            [] (voronoicell_neighbor& vc, container& con, c_loop_order& itr) {
-                return con.compute_cell(vc, itr);
-            }
-        )
+        static_cast<bool (*)(voronoicell_neighbor&, container&, c_loop_order&)>(compute_cell)
     );
     mod.method(
         "__cxxwrap_compute_cell!",
-        static_cast<bool (*)(voronoicell_neighbor&, container_poly&, c_loop_all&)>(
-            [] (voronoicell_neighbor& vc, container_poly& con, c_loop_all& itr) {
-                return con.compute_cell(vc, itr);
-            }
-        )
+        static_cast<bool (*)(voronoicell_neighbor&, container_poly&, c_loop_all&)>(compute_cell)
     );
     mod.method(
         "__cxxwrap_compute_cell!",
-        static_cast<bool (*)(voronoicell_neighbor&, container_poly&, c_loop_order&)>(
-            [] (voronoicell_neighbor& vc, container_poly& con, c_loop_order& itr) {
-                return con.compute_cell(vc, itr);
+        static_cast<bool (*)(voronoicell_neighbor&, container_poly&, c_loop_order&)>(compute_cell)
+    );
+
+    mod.method(
+        "__cxxwrap_draw_gnuplot",
+        static_cast<void (*)(void*, voronoicell_neighbor&, double, double, double)>(
+            [] (void *fp, voronoicell_neighbor& vc, double x, double y, double z) {
+                FILE* fptr = static_cast<FILE*>(fp);
+                vc.draw_gnuplot(x, y, z, fptr); 
             }
         )
     );
-    mod.method("__cxxwrap_compute_ghost_cell!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z) {return con.compute_ghost_cell(vc, x, y, z);});
+
+    mod.method(
+        "__cxxwrap_draw_pov",
+        static_cast<void (*)(void*, voronoicell_neighbor&, double, double, double)>(
+            [] (void *fp, voronoicell_neighbor& vc, double x, double y, double z) {
+                FILE* fptr = static_cast<FILE*>(fp);
+                vc.draw_pov(x, y, z, fptr); 
+            }
+        )
+    );
+
+    mod.method(
+        "__cxxwrap_draw_pov_mesh",
+        static_cast<void (*)(void*, voronoicell_neighbor&, double, double, double)>(
+            [] (void *fp, voronoicell_neighbor& vc, double x, double y, double z) {
+                FILE* fptr = static_cast<FILE*>(fp);
+                vc.draw_pov_mesh(x, y, z, fptr); 
+            }
+        )
+    );
+
     mod.method("apply_walls!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z){ return con.apply_walls(vc, x, y, z);});
 
     // Public Menbers from Container Class
