@@ -3,9 +3,27 @@
 using BinaryBuilder, Pkg
 
 name = "voropp_wrapper"
-version = v"0.1.2"
+
+function getversion(conf)
+    a = b = c = 0
+    for l in readlines(conf)
+        ln = strip(l) do c; isspace(c) || c == ','; end
+        vers = split(ln, ':')
+        if vers[1] == "\"major\""
+            a = parse(Int, vers[2])
+        end
+        if vers[1] == "\"minor\""
+            b = parse(Int, vers[2])
+        end
+        if vers[1] == "\"patch\""
+            c = parse(Int, vers[2])
+        end
+    end
+    return VersionNumber(a, b, c)
+end
 
 basepath = dirname(@__DIR__)
+version = getversion(joinpath(basepath, "version.json"))
 # Collection of sources required to complete build
 sources = [
     GitSource("https://github.com/chr1shr/voro.git", "2cb6cefc690be1c653bfb8e65559ee8441c0b21f"),

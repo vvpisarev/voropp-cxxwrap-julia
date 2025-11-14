@@ -210,11 +210,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             "__cxxwrap_inc!",
             &c_loop_all::inc
         )
-        // Inherited from c_loop_base
-        .method("ci_x", &c_loop_all::x)
-        .method("ci_y", &c_loop_all::y)
-        .method("ci_z", &c_loop_all::z)
-        .method("ci_pid", &c_loop_all::pid)
         ;
     
 
@@ -238,15 +233,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             "__cxxwrap_set_bounds_to_box!",
             static_cast<void (c_loop_subset::*)(double, double, double, double, double, double, bool)>(&c_loop_subset::setup_box)
         )
-        .method(
-            "__cxxwrap_set_bounds_to_intbox!",
-            static_cast<void (c_loop_subset::*)(int, int, int, int, int, int)>(&c_loop_subset::setup_intbox)
-        )
-        // Inherited from c_loop_base
-        .method("cis_x", &c_loop_subset::x)
-        .method("cis_y", &c_loop_subset::y)
-        .method("cis_z", &c_loop_subset::z)
-        .method("cis_pid", &c_loop_subset::pid)
     ;
 
 
@@ -262,11 +248,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             "__cxxwrap_inc!",
             &c_loop_order::inc
         )
-        // Inherited from c_loop_base
-        .method("cio_x", &c_loop_order::x)
-        .method("cio_y", &c_loop_order::y)
-        .method("cio_z", &c_loop_order::z)
-        .method("cio_pid", &c_loop_order::pid)
         ;
 
 
