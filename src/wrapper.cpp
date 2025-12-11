@@ -127,8 +127,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             "import!",
             static_cast<void (container::*)(const char*)>(&container::import)
         )
-        // When exporting to Julia, it is no possible to derive automatically type FILE
-        //.method("draw_cells_gnuplot", static_cast<void (container::*)(FILE*)>(&container::draw_cells_gnuplot))
         .method(
             "draw_particles",
             static_cast<void (container::*)(const char*)>(&container::draw_particles)
@@ -140,10 +138,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method(
             "draw_cells_gnuplot",
             static_cast<void (container::*)(const char*)>(&container::draw_cells_gnuplot)
-        )
-        .method(
-            "print_custom",
-            static_cast<void (container::*)(const char*, const char*)>(&container::print_custom)
         )
         .method(
             "draw_cells_pov",
@@ -190,11 +184,30 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             "__cxxwrap_put!",
             static_cast<void (container_poly::*)(int, double, double, double, double)>(&container_poly::put)
         )
+        .method(
+            "__cxxwrap_put!",
+            static_cast<void (container_poly::*)(particle_order&, int, double, double, double, double)>(&container_poly::put)
+        )
+        .method(
+            "__cxxwrap_clear!",
+            &container_poly::clear
+        )
+        .method(
+            "__cxxwrap_isinside", 
+            static_cast<bool (container_poly::*)(double, double, double)>(&container_poly::point_inside)
+        )
+        .method(
+            "compute_all_cells",
+            &container_poly::compute_all_cells
+        )
+        .method(
+            "sum_cell_volumes", 
+            &container_poly::sum_cell_volumes
+        )
         .method("import!", static_cast<void (container_poly::*)(const char*)>(&container_poly::import))
         .method("draw_particles", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_particles))
         .method("draw_particles_pov", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_particles_pov))
         .method("draw_cells_gnuplot", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_gnuplot))
-        .method("print_custom", static_cast<void (container_poly::*)(const char*, const char*)>(&container_poly::print_custom))
         .method("draw_cells_pov", static_cast<void (container_poly::*)(const char*)>(&container_poly::draw_cells_pov))
         ;
 
