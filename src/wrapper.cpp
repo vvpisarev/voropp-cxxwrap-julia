@@ -682,30 +682,27 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     mod.method(
         "__cxxwrap_draw_gnuplot",
-        static_cast<void (*)(void*, voronoicell_neighbor&, double, double, double)>(
-            [] (void *fp, voronoicell_neighbor& vc, double x, double y, double z) {
-                FILE* fptr = static_cast<FILE*>(fp);
-                vc.draw_gnuplot(x, y, z, fptr); 
+        static_cast<void (*)(FILE*, voronoicell_neighbor&, double, double, double)>(
+            [] (FILE *fp, voronoicell_neighbor& vc, double x, double y, double z) {
+                vc.draw_gnuplot(x, y, z, fp); 
             }
         )
     );
 
     mod.method(
         "__cxxwrap_draw_pov",
-        static_cast<void (*)(void*, voronoicell_neighbor&, double, double, double)>(
-            [] (void *fp, voronoicell_neighbor& vc, double x, double y, double z) {
-                FILE* fptr = static_cast<FILE*>(fp);
-                vc.draw_pov(x, y, z, fptr); 
+        static_cast<void (*)(FILE*, voronoicell_neighbor&, double, double, double)>(
+            [] (FILE *fp, voronoicell_neighbor& vc, double x, double y, double z) {
+                vc.draw_pov(x, y, z, fp); 
             }
         )
     );
 
     mod.method(
         "__cxxwrap_draw_pov_mesh",
-        static_cast<void (*)(void*, voronoicell_neighbor&, double, double, double)>(
-            [] (void *fp, voronoicell_neighbor& vc, double x, double y, double z) {
-                FILE* fptr = static_cast<FILE*>(fp);
-                vc.draw_pov_mesh(x, y, z, fptr); 
+        static_cast<void (*)(FILE*, voronoicell_neighbor&, double, double, double)>(
+            [] (FILE *fp, voronoicell_neighbor& vc, double x, double y, double z) {
+                vc.draw_pov_mesh(x, y, z, fp); 
             }
         )
     );
