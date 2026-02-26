@@ -557,7 +557,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.method(
         "__cxxwrap_get_vertex_orders!",
         static_cast<void (*)(std::vector<int>&, voronoicell_neighbor&)>(
-            [] (std::vector<int>& v, voronoicell_neighbor& vc) { vc.get_vertex_orders(v); }   
+            [] (std::vector<int>& v, voronoicell_neighbor& vc) { vc.vertex_orders(v); }   
         )
     );
     mod.method(
