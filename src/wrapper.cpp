@@ -30,78 +30,258 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 {
     using namespace voro;
 
+    // Class Container
+    auto class_container = mod.add_type<container>(
+        "RawContainer", jlcxx::julia_type("AbstractRawContainer", "VoroPlusPlus")
+    )
+        .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
+    ;
+
+    // Class Container Poly
+    auto class_container_poly = mod.add_type<container_poly>(
+        "RawContainerPoly", jlcxx::julia_type("AbstractRawContainer", "VoroPlusPlus")
+    )
+        .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
+    ;
+
+    // Class Containter Periodic Poly
+    auto class_container_periodic_poly = mod.add_type<container_periodic_poly>("RawContainerTriclinic")
+        .constructor<double, double, double, double, double, double, int, int, int, int>()
+    ;
+
+    // Class VoronoiCell
+    auto class_voronoicell_neighbor = mod.add_type<voronoicell_neighbor>(
+        "VoronoiCell", jlcxx::julia_type("AbstractVoronoiCell", "VoroPlusPlus")
+    )
+        .constructor<>()
+        .constructor<double>()
+        .constructor<container&>()
+        .constructor<container_poly&>()
+    ;
+
     // Class Particle Order
-    mod.add_type<particle_order>(
+    auto class_particle_order = mod.add_type<particle_order>(
         "InsertionOrder",  jlcxx::julia_type("ContainerIterationOrder", "VoroPlusPlus")
     )
         .constructor<>()
     ;
 
+    // Class Container Iterator
+    auto class_c_loop_all = mod.add_type<c_loop_all>("RawContainerIterator")
+        .constructor<container&>()
+        .constructor<container_poly&>()
+    ;
+
+    // Class Container Iterator Subset
+    auto class_c_loop_subset = mod.add_type<c_loop_subset>("ContainerSubsetIterator")
+        .constructor<container&>()
+        .constructor<container_poly&>()
+    ;
+
+    // Class Container Iterator Order
+    auto class_c_loop_order = mod.add_type<c_loop_order>("InsertionOrderIterator")
+        .constructor<container&, particle_order&>()
+        .constructor<container_poly&, particle_order&>()
+    ;
+
     // Class Wall   
-    mod.add_type<wall_sphere>(
+    auto class_wall_sphere = mod.add_type<wall_sphere>(
         "WallSphere", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
     )
         .constructor<double, double, double, double>()
         .constructor<double, double, double, double, int>()
     ;
 
-    mod.add_type<wall_cylinder>(
+    auto class_wall_cylinder = mod.add_type<wall_cylinder>(
         "WallCylinder", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
     )
         .constructor<double, double, double, double, double, double, double, int>()
         .constructor<double, double, double, double, double, double, double>()
     ;
 
-    mod.add_type<wall_cone>(
+    auto class_wall_cone = mod.add_type<wall_cone>(
         "WallCone", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
     )
         .constructor<double, double, double, double, double, double, double, int>()
         .constructor<double, double, double, double, double, double, double>()
     ;
 
-    mod.add_type<wall_plane>(
+    auto class_wall_plane = mod.add_type<wall_plane>(
         "WallPlane", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
     )
         .constructor<double, double, double, double, int>()
         .constructor<double, double, double, double>()
     ;
 
-    // Class Wall_List
-    // mod.add_type<wall_list>("Wall_List")
-    //     .constructor<>()
-    //     .method("add_wall", static_cast<void (wall_list::*)(wall&)>(&wall_list::add_wall))
-    //     ;
+    // container_base methods
+    
+    auto __cxxwrap_bounds = [] (auto &con)
+    {
+        return std::make_tuple(con.ax, con.ay, con.az, con.bx, con.by, con.bz);
+    };
 
+    auto __cxxwrap_periodic = [] (auto &con)
+    {
+        return std::make_tuple(con.xperiodic, con.yperiodic, con.zperiodic);
+    };
 
+    auto __cxxwrap_point_inside = [] (auto &w, double x, double y, double z) 
+    {
+        return w.point_inside(x, y, z);
+    };
+
+    auto __cxxwrap_point_inside_walls = [] (auto &con, double x, double y, double z) 
+    {
+        return con.point_inside_walls(x, y, z);
+    };
+
+    auto __cxxwrap_total_particles = [] (auto &con) 
+    {
+        return con.total_particles();
+    };
+
+    auto __cxxwrap_clear = [] (auto &con) 
+    {
+        return con.clear();
+    };
+
+    auto __cxxwrap_import_file = [] (auto& con, FILE* fp)
+    {
+        con.import(fp);
+    };
+
+    auto __cxxwrap_ordered_import_file = [] (auto& con, particle_order& ord, FILE* fp)
+    {
+        con.import(ord, fp);
+    };
+
+    auto __cxxwrap_import_filename = [] (auto& con, const char* filename)
+    {
+        con.import(filename);
+    };
+
+    auto __cxxwrap_ordered_import_filename = [] (auto& con, particle_order& ord, const char* fp)
+    {
+        con.import(ord, filename);
+    };
+    
+    auto __cxwrap_compute_all_cells = [] (auto& con) {con.compute_all_cells()};
+
+    auto __cxwrap_sum_cell_volumes = [] (auto& con) {con.sum_cell_volumes()};
     // Class Container
-    mod.add_type<container>(
-        "RawContainer", jlcxx::julia_type("AbstractRawContainer", "VoroPlusPlus")
-    )
-        .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
-        .method(
-            "__cxxwrap_put!",
-            static_cast<void (container::*)(int, double, double, double)>(&container::put)
+    mod.method(
+        "__cxxwrap_bounds",
+        static_cast<std::tuple<double,double,double,double,double,double> (*)(container&)>(
+            __cxxwrap_bounds
         )
-        .method(
-            "__cxxwrap_put!",
-            static_cast<void (container::*)(particle_order&, int, double, double, double)>(&container::put)
+    );
+    mod.method(
+        "__cxxwrap_periodic",
+        static_cast<std::tuple<bool,bool,bool> (*)(container&)>(
+            __cxxwrap_periodic
         )
-        .method(
-            "import!",
-            static_cast<void (container::*)(const char*)>(&container::import)
+    );
+    mod.method(
+        "__cxxwrap_point_inside",
+        static_cast<bool (*)(container&, double, double, double)>(
+            __cxxwrap_point_inside
         )
-        .method(
-            "import!",
-            static_cast<void (container::*)(FILE*)>(&container::import)
+    );
+    mod.method(
+        "__cxxwrap_point_inside_walls",
+        static_cast<bool (*)(container&, double, double, double)>(
+            __cxxwrap_point_inside_walls
         )
-        .method(
-            "draw_particles",
-            static_cast<void (container::*)(const char*)>(&container::draw_particles)
+    );
+    mod.method(
+        "__cxxwrap_total_particles",
+        static_cast<int (*)(container&)>(
+            __cxxwrap_total_particles
         )
-        .method(
-            "draw_particles",
-            static_cast<void (container::*)(FILE*)>(&container::draw_particles)
+    );
+    mod.method(
+        "__cxxwrap_clear!",
+        static_cast<void (*)(container&)>(
+            __cxxwrap_clear
         )
+    );
+    mod.method(
+        "__cxxwrap_put!",
+        static_cast<void (*)(container&, int, double, double, double)>([](container& con, int i, double x, double y, double z)
+        {
+            con.put(i, x, y, z);
+        })
+    );
+    mod.method(
+        "__cxxwrap_put!",
+        static_cast<void (*)(container&, particle_order&, int, double, double, double)>([](container& con, particle_order& ord, int i, double x, double y, double z)
+        {
+            con.put(ord, i, x, y, z);
+        })
+    );
+    mod.method(
+        "__cxxwrap_import!",
+        static_cast<void (*)(container&, FILE*)>(
+            __cxxwrap_import_file
+        )
+    );
+    mod.method(
+        "__cxxwrap_import!",
+        static_cast<void (*)(container&, particle_order&, FILE*)>(
+            __cxxwrap_ordered_import_file
+        )
+    );
+    mod.method(
+        "__cxxwrap_import!",
+        static_cast<void (*)(container&, const char*)>(
+            __cxxwrap_import_filename
+        )
+    );
+    mod.method(
+        "__cxxwrap_import!",
+        static_cast<void (*)(container&, particle_order&, const char*)>(
+            __cxxwrap_ordered_import_filename
+        )
+    );
+    mod.method(
+        "__cxxwrap_compute_all_cells",
+        static_cast<void (*)(container&)>(
+            __cxxwrap_compute_all_cells
+        )
+    );
+    mod.method(
+        "__cxxwrap_sum_cell_volumes",
+        static_cast<double (*)(container&)>(
+            __cxxwrap_sum_cell_volumes
+        )
+    );
+    mod.method(
+        "__cxxwrap_draw_particles",
+        static_cast<double (*)(container&, FILE*)>(
+            __cxxwrap_draw_particles_file
+        )
+    );
+    mod.method(
+        "__cxxwrap_draw_particles",
+        static_cast<double (*)(container&, const char*)>(
+            __cxxwrap_draw_particles_filename
+        )
+    );
+    mod.method(
+        "__cxxwrap_draw_particles_pov",
+        static_cast<double (*)(container&, FILE*)>(
+            __cxxwrap_draw_particles_pov_file
+        )
+    );
+    mod.method(
+        "__cxxwrap_draw_particles_pov",
+        static_cast<double (*)(container&, const char*)>(
+            __cxxwrap_draw_particles_pov_filename
+        )
+    );
+
+    
+    class_container
         .method(
             "draw_particles_pov",
             static_cast<void (container::*)(const char*)>(&container::draw_particles_pov)
@@ -126,43 +306,30 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
             "draw_cells_pov",
             static_cast<void (container::*)(FILE*)>(&container::draw_cells_pov)
         )
-        .method(
-            "__cxxwrap_clear!",
-            &container::clear
-        )
-        .method(
-            "compute_all_cells",
-            &container::compute_all_cells
-        )
-        .method(
-            "sum_cell_volumes", 
-            &container::sum_cell_volumes
-        )
-        .method(
-            "__cxxwrap_isinside", 
-            static_cast<bool (container::*)(double, double, double)>(&container::point_inside)
-        )
-        // When exporting to Julia, it is needed to defien first voronoicell type
-        //.method("initialize_voronoicell", static_cast<bool (container::*)(voro::voronoicell&, int, int, int, int, int, int&, int&, int&, double&, double&, double&, int&)>(&container::initialize_voronoicell))
         .method("draw_domain_gnuplot",
             static_cast<void (container::*)(const char*)>(&container::draw_domain_gnuplot)
         )
         .method("draw_domain_pov",
             static_cast<void (container::*)(const char*)>(&container::draw_domain_pov)
         )
-        .method(
-            "total_particles",
-            &container::total_particles
-        )
-        //.method("add_wall!", static_cast<void (container::*)(wall_list&)>(&container::add_wall))
         ;
 
 
     // Class Container Poly
-    mod.add_type<container_poly>(
-        "RawContainerPoly", jlcxx::julia_type("AbstractRawContainer", "VoroPlusPlus")
-    )
-        .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
+    mod.method(
+        "__cxxwrap_bounds",
+        static_cast<std::tuple<double,double,double,double,double,double> (*)(container_poly&)>(
+            __cxxwrap_bounds
+        )
+    );
+    mod.method(
+        "__cxxwrap_periodic",
+        static_cast<std::tuple<bool,bool,bool> (*)(container_poly&)>(
+            __cxxwrap_periodic
+        )
+    );
+
+    class_container_poly
         .method(
             "__cxxwrap_put!",
             static_cast<void (container_poly::*)(int, double, double, double, double)>(&container_poly::put)
@@ -199,10 +366,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         .method("draw_cells_pov", static_cast<void (container_poly::*)(FILE*)>(&container_poly::draw_cells_pov))
         ;
 
-    // Class Container Iterator
-    mod.add_type<c_loop_all>("RawContainerIterator")
-        .constructor<container&>()
-        .constructor<container_poly&>()
+    class_c_loop_all
         .method(
             "__cxxwrap_start!",
             &c_loop_all::start
@@ -213,11 +377,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         )
         ;
     
-
-    // Class Container Iterator Subset
-    mod.add_type<c_loop_subset>("ContainerSubsetIterator")
-        .constructor<container&>()
-        .constructor<container_poly&>()
+    class_c_loop_subset
         .method(
             "__cxxwrap_start!",
             &c_loop_subset::start
@@ -237,10 +397,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     ;
 
 
-    // Class Container Iterator Order
-    mod.add_type<c_loop_order>("InsertionOrderIterator")
-        .constructor<container&, particle_order&>()
-        .constructor<container_poly&, particle_order&>()
+    class_c_loop_order
         .method(
             "__cxxwrap_start!",
             &c_loop_order::start
@@ -253,13 +410,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
 
     // Class VoronoiCell
-    mod.add_type<voronoicell_neighbor>(
-        "VoronoiCell", jlcxx::julia_type("AbstractVoronoiCell", "VoroPlusPlus")
-    )
-        .constructor<>()
-        .constructor<double>()
-        .constructor<container&>()
-        .constructor<container_poly&>()
+    class_voronoicell_neighbor
         .method(
             "__cxxwrap_init!",
             &voronoicell_neighbor::init
@@ -313,8 +464,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         ;
 
     // Class Containter Periodic Poly (conprdply)
-    mod.add_type<container_periodic_poly>("RawContainerTriclinic")
-        .constructor<double, double, double, double, double, double, int, int, int, int>()
+    class_container_periodic_poly
         .method("__cxxwrap_put!", static_cast<void (container_periodic_poly::*)(int, double, double, double, double)>(&container_periodic_poly::put))
         // Type mismatch from Voro++
         //.method("conprdply_compute_ghost_cell", static_cast<bool (container_periodic_poly::*)(voronoicell&, double, double, double, double)>(&container_periodic_poly::compute_ghost_cell))
@@ -353,11 +503,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         static_cast<void (*)(container_poly&, wall_cone&)>(__cxxwrap_add_wall)
     );
 
-    auto __cxxwrap_point_inside = [] (auto &w, double x, double y, double z) 
-    {
-        return w.point_inside(x, y, z);
-    };
-
     mod.method(
         "__cxxwrap_point_inside",
         static_cast<bool (*)(wall_sphere&, double, double, double)>(__cxxwrap_point_inside)
@@ -377,12 +522,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         "__cxxwrap_point_inside",
         static_cast<bool (*)(wall_plane&, double, double, double)>(__cxxwrap_point_inside)
     );
-
-    auto __cxxwrap_point_inside_walls = 
-        [] (auto &con, double x, double y, double z) 
-        {
-            return con.point_inside_walls(x, y, z);
-        };
 
     mod.method(
         "__cxxwrap_point_inside_walls",
@@ -420,16 +559,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);
         return std::make_tuple(found, pid, rx, ry, rz);
     };
-
-    auto __cxxwrap_periodic = [] (auto &con)
-    {
-        return std::make_tuple(con.xperiodic, con.yperiodic, con.zperiodic);
-    };
-
-    auto __cxxwrap_bounds = [] (auto &con)
-    {
-        return std::make_tuple(con.ax, con.ay, con.az, con.bx, con.by, con.bz);
-    };
     
     mod.method(
         "__cxxwrap_find_cell",
@@ -441,30 +570,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         "__cxxwrap_find_cell",
         static_cast<std::tuple<bool,int,double,double,double> (*)(container_poly&, double, double, double)>(
             __cxxwrap_find_cell
-        )
-    );
-    mod.method(
-        "__cxxwrap_periodic",
-        static_cast<std::tuple<bool,bool,bool> (*)(container&)>(
-            __cxxwrap_periodic
-        )
-    );
-        mod.method(
-        "__cxxwrap_periodic",
-        static_cast<std::tuple<bool,bool,bool> (*)(container_poly&)>(
-            __cxxwrap_periodic
-        )
-    );
-    mod.method(
-        "__cxxwrap_bounds",
-        static_cast<std::tuple<double,double,double,double,double,double> (*)(container&)>(
-            __cxxwrap_bounds
-        )
-    );
-    mod.method(
-        "__cxxwrap_bounds",
-        static_cast<std::tuple<double,double,double,double,double,double> (*)(container_poly&)>(
-            __cxxwrap_bounds
         )
     );
 
