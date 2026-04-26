@@ -21,12 +21,13 @@ if (POLICY CMP0048)
 endif (POLICY CMP0048)
 
 load_version_json(${CMAKE_CURRENT_LIST_DIR}/version.json)
+
+cmake_minimum_required(VERSION 3.5)
 project(voropp-cxxwrap-julia
     VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
     LANGUAGES C CXX
 )
 
-cmake_minimum_required(VERSION 3.5)
 set(CMAKE_MACOSX_RPATH 1)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
