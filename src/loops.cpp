@@ -21,6 +21,20 @@ void export_loops_methods(jlcxx::Module& mod)
             return std::make_tuple(pid, x, y, z, r);
         };
 
+    auto __cxxwrap_loop_state = [] (auto &cl)
+        {
+            return std::make_tuple(cl.i, cl.j, cl.k, cl.ijk, cl.q);
+        };
+
+    auto __cxxwrap_restore_loop_state = [] (auto &cl, int i, int j, int k, int ijk, int q)
+        {
+            cl.i = i;
+            cl.j = j;
+            cl.k = k;
+            cl.ijk = ijk;
+            cl.q = q;
+        };
+
     mod.method(
         "__cxxwrap_start!",
         static_cast<bool (*)(c_loop_all&)>(
@@ -158,6 +172,68 @@ void export_loops_methods(jlcxx::Module& mod)
         "__cxxwrap_particle_info",
         static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_order_periodic&)>(
             __cxxwrap_particle_info
+        )
+    );
+
+    mod.method(
+        "__cxxwrap_loop_state",
+        static_cast<std::tuple<int,int,int,int,int> (*)(c_loop_all&)>(
+            __cxxwrap_loop_state
+        )
+    );
+    mod.method(
+        "__cxxwrap_loop_state",
+        static_cast<std::tuple<int,int,int,int,int> (*)(c_loop_order&)>(
+            __cxxwrap_loop_state
+        )
+    );
+    mod.method(
+        "__cxxwrap_loop_state",
+        static_cast<std::tuple<int,int,int,int,int> (*)(c_loop_subset&)>(
+            __cxxwrap_loop_state
+        )
+    );
+    mod.method(
+        "__cxxwrap_loop_state",
+        static_cast<std::tuple<int,int,int,int,int> (*)(c_loop_all_periodic&)>(
+            __cxxwrap_loop_state
+        )
+    );
+    mod.method(
+        "__cxxwrap_loop_state",
+        static_cast<std::tuple<int,int,int,int,int> (*)(c_loop_order_periodic&)>(
+            __cxxwrap_loop_state
+        )
+    );
+
+    mod.method(
+        "__cxxwrap_restore_loop_state",
+        static_cast<void (*)(c_loop_all&,int,int,int,int,int)>(
+            __cxxwrap_restore_loop_state
+        )
+    );
+    mod.method(
+        "__cxxwrap_restore_loop_state",
+        static_cast<void (*)(c_loop_order&,int,int,int,int,int)>(
+            __cxxwrap_restore_loop_state
+        )
+    );
+    mod.method(
+        "__cxxwrap_restore_loop_state",
+        static_cast<void (*)(c_loop_subset&,int,int,int,int,int)>(
+            __cxxwrap_restore_loop_state
+        )
+    );
+    mod.method(
+        "__cxxwrap_restore_loop_state",
+        static_cast<void (*)(c_loop_all_periodic&,int,int,int,int,int)>(
+            __cxxwrap_restore_loop_state
+        )
+    );
+    mod.method(
+        "__cxxwrap_restore_loop_state",
+        static_cast<void (*)(c_loop_order_periodic&,int,int,int,int,int)>(
+            __cxxwrap_restore_loop_state
         )
     );
 }
