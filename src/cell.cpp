@@ -256,7 +256,7 @@ void export_voronoicell_methods(jlcxx::Module& mod)
         )
     );
     mod.method(
-        "__cxxwrap_copy!",
+        "__cxxwrap_copyto!",
         static_cast<void (*)(voronoicell_neighbor&, voronoicell_neighbor&)>(
             [] (voronoicell_neighbor& dest, voronoicell_neighbor& src) {
                 dest = src;
