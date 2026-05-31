@@ -701,6 +701,26 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         static_cast<bool (*)(voronoicell_neighbor&, container_poly&, c_loop_order&)>(compute_cell)
     );
 
+    mod.method(
+        "__cxxwrap_compute_ghost_cell!",
+        static_cast<bool (*)(voronoicell_neighbor&, container&, double, double, double)>(
+            [] (voronoicell_neighbor& vc, container& con, double x, double y, double z)
+            {
+                return con.compute_ghost_cell(vc, x, y, z);
+            }
+        )
+    );
+
+    mod.method(
+        "__cxxwrap_compute_ghost_cell!",
+        static_cast<bool (*)(voronoicell_neighbor&, container_poly&, double, double, double, double)>(
+            [] (voronoicell_neighbor& vc, container_poly& con, double x, double y, double z, double r)
+            {
+                return con.compute_ghost_cell(vc, x, y, z, r);
+            }
+        )
+    );
+
     mod.method("apply_walls!", [] (voronoicell_neighbor& vc, container& con, double x, double y, double z){ return con.apply_walls(vc, x, y, z);});
 
     // Public Menbers from Container Class
