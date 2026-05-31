@@ -48,11 +48,15 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     ;
 
     // Class Containter Periodic
-    auto class_container_periodic = mod.add_type<container_periodic>("ContainerTriclinic")
+    auto class_container_periodic = mod.add_type<container_periodic>(
+        "ContainerTriclinic", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+    )
         .constructor<double, double, double, double, double, double, int, int, int, int>()
     ;
 
-    auto class_container_periodic_poly = mod.add_type<container_periodic_poly>("ContainerTriclinicPoly")
+    auto class_container_periodic_poly = mod.add_type<container_periodic_poly>(
+        "ContainerTriclinicPoly", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+    )
         .constructor<double, double, double, double, double, double, int, int, int, int>()
     ;
 
