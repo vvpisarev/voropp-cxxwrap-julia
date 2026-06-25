@@ -26,24 +26,40 @@
 // }
 
 struct box_bounds {
-    double ax, ay, az, bx, by, bz;
+    double ax;
+    double ay;
+    double az;
+    double bx;
+    double by;
+    double bz;
 };
 
 struct pbc {
-    bool px, py, pz;
+    bool px;
+    bool py;
+    bool pz;
 };
 
 struct vec3d {
-    double x, y, z;
+    double x;
+    double y;
+    double z;
 };
 
 struct particle_info {
-    double x, y, z, r;
+    double x;
+    double y;
+    double z;
+    double r;
     int pid;
 };
 
 struct loop_indices {
-    int i, j, k, ijk, q;
+    int i;
+    int j;
+    int k;
+    int ijk;
+    int q;
 };
 
 #include "containers.cpp"
