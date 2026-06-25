@@ -87,6 +87,11 @@ void export_containers_methods(jlcxx::Module& mod)
         return con.compute_cell(vc, vl);
     };
 
+    auto __cxxwrap_compute_cell_by_inds = [] (voronoicell_neighbor& vc, auto& con, int ijk, int q)
+    {
+        return con.compute_cell(vc, ijk, q);
+    };
+
     auto __cxxwrap_find_voronoi_cell = [](auto& con, double x, double y, double z)
     {
         double rx, ry, rz;
@@ -302,6 +307,12 @@ void export_containers_methods(jlcxx::Module& mod)
         "__cxxwrap_compute_cell!",
         static_cast<bool (*)(voronoicell_neighbor&, container&, c_loop_subset&)>(
             __cxxwrap_compute_cell
+        )
+    );
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        static_cast<bool (*)(voronoicell_neighbor&, container&, int, int)>(
+            __cxxwrap_compute_cell_by_inds
         )
     );
     mod.method(
@@ -523,6 +534,12 @@ void export_containers_methods(jlcxx::Module& mod)
         )
     );
     mod.method(
+        "__cxxwrap_compute_cell!",
+        static_cast<bool (*)(voronoicell_neighbor&, container_poly&, int, int)>(
+            __cxxwrap_compute_cell_by_inds
+        )
+    );
+    mod.method(
         "__cxxwrap_point_inside_walls",
         static_cast<bool (*)(container_poly&, double, double, double)>(
             __cxxwrap_point_inside_walls
@@ -714,7 +731,12 @@ void export_containers_methods(jlcxx::Module& mod)
             __cxxwrap_compute_cell
         )
     );
-
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        static_cast<bool (*)(voronoicell_neighbor&, container_periodic&, int, int)>(
+            __cxxwrap_compute_cell_by_inds
+        )
+    );
     // Class Container Periodic Poly
 
     mod.method(
@@ -849,7 +871,12 @@ void export_containers_methods(jlcxx::Module& mod)
             __cxxwrap_compute_cell
         )
     );
-
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        static_cast<bool (*)(voronoicell_neighbor&, container_periodic_poly&, int, int)>(
+            __cxxwrap_compute_cell_by_inds
+        )
+    );
     mod.method(
         "__cxxwrap_compute_ghost_cell!",
         static_cast<bool (*)(voronoicell_neighbor&, container&, double, double, double)>(
