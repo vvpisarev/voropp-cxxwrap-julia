@@ -10,7 +10,7 @@ void export_loops_methods(jlcxx::Module& mod)
         {
             double x, y, z;
             cl.pos(x, y, z);
-            return std::make_tuple(x, y, z);
+            return vec3d(x, y, z);
         };
 
     auto __cxxwrap_particle_info = [] (auto &cl)
@@ -18,12 +18,12 @@ void export_loops_methods(jlcxx::Module& mod)
             int pid;
             double x, y, z, r;
             cl.pos(pid, x, y, z, r);
-            return std::make_tuple(pid, x, y, z, r);
+            return particle_info(x, y, z, r, pid);
         };
 
     auto __cxxwrap_loop_state = [] (auto &cl)
         {
-            return std::make_tuple(cl.i, cl.j, cl.k, cl.ijk, cl.q);
+            return loop_indices(cl.i, cl.j, cl.k, cl.ijk, cl.q);
         };
 
     auto __cxxwrap_restore_loop_state = [] (auto &cl, int i, int j, int k, int ijk, int q)
@@ -49,13 +49,13 @@ void export_loops_methods(jlcxx::Module& mod)
     );
     mod.method(
         "__cxxwrap_pos",
-        static_cast<std::tuple<double,double,double> (*)(c_loop_all&)>(
+        static_cast<vec3d (*)(c_loop_all&)>(
             __cxxwrap_pos
         )
     );
     mod.method(
         "__cxxwrap_particle_info",
-        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_all&)>(
+        static_cast<particle_info (*)(c_loop_all&)>(
             __cxxwrap_particle_info
         )
     );
@@ -73,13 +73,13 @@ void export_loops_methods(jlcxx::Module& mod)
     );
     mod.method(
         "__cxxwrap_pos",
-        static_cast<std::tuple<double,double,double> (*)(c_loop_order&)>(
+        static_cast<vec3d (*)(c_loop_order&)>(
             __cxxwrap_pos
         )
     );
     mod.method(
         "__cxxwrap_particle_info",
-        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_order&)>(
+        static_cast<particle_info (*)(c_loop_order&)>(
             __cxxwrap_particle_info
         )
     );
@@ -97,13 +97,13 @@ void export_loops_methods(jlcxx::Module& mod)
     );
     mod.method(
         "__cxxwrap_pos",
-        static_cast<std::tuple<double,double,double> (*)(c_loop_subset&)>(
+        static_cast<vec3d (*)(c_loop_subset&)>(
             __cxxwrap_pos
         )
     );
     mod.method(
         "__cxxwrap_particle_info",
-        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_subset&)>(
+        static_cast<particle_info (*)(c_loop_subset&)>(
             __cxxwrap_particle_info
         )
     );
@@ -140,13 +140,13 @@ void export_loops_methods(jlcxx::Module& mod)
     );
     mod.method(
         "__cxxwrap_pos",
-        static_cast<std::tuple<double,double,double> (*)(c_loop_all_periodic&)>(
+        static_cast<vec3d (*)(c_loop_all_periodic&)>(
             __cxxwrap_pos
         )
     );
     mod.method(
         "__cxxwrap_particle_info",
-        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_all_periodic&)>(
+        static_cast<particle_info (*)(c_loop_all_periodic&)>(
             __cxxwrap_particle_info
         )
     );
@@ -164,44 +164,44 @@ void export_loops_methods(jlcxx::Module& mod)
     );
     mod.method(
         "__cxxwrap_pos",
-        static_cast<std::tuple<double,double,double> (*)(c_loop_order_periodic&)>(
+        static_cast<vec3d (*)(c_loop_order_periodic&)>(
             __cxxwrap_pos
         )
     );
     mod.method(
         "__cxxwrap_particle_info",
-        static_cast<std::tuple<int,double,double,double,double> (*)(c_loop_order_periodic&)>(
+        static_cast<particle_info (*)(c_loop_order_periodic&)>(
             __cxxwrap_particle_info
         )
     );
 
     mod.method(
         "__cxxwrap_loop_state",
-        static_cast<std::tuple<int,int,int,int,int> (*)(c_loop_all&)>(
+        static_cast<loop_indices (*)(c_loop_all&)>(
             __cxxwrap_loop_state
         )
     );
     mod.method(
         "__cxxwrap_loop_state",
-        static_cast<std::tuple<int,int,int,int,int> (*)(c_loop_order&)>(
+        static_cast<loop_indices (*)(c_loop_order&)>(
             __cxxwrap_loop_state
         )
     );
     mod.method(
         "__cxxwrap_loop_state",
-        static_cast<std::tuple<int,int,int,int,int> (*)(c_loop_subset&)>(
+        static_cast<loop_indices (*)(c_loop_subset&)>(
             __cxxwrap_loop_state
         )
     );
     mod.method(
         "__cxxwrap_loop_state",
-        static_cast<std::tuple<int,int,int,int,int> (*)(c_loop_all_periodic&)>(
+        static_cast<loop_indices (*)(c_loop_all_periodic&)>(
             __cxxwrap_loop_state
         )
     );
     mod.method(
         "__cxxwrap_loop_state",
-        static_cast<std::tuple<int,int,int,int,int> (*)(c_loop_order_periodic&)>(
+        static_cast<loop_indices (*)(c_loop_order_periodic&)>(
             __cxxwrap_loop_state
         )
     );
