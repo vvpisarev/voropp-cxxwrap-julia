@@ -6,17 +6,17 @@ void export_containers_methods(jlcxx::Module& mod)
     
     auto __cxxwrap_bounds = [] (auto &con)
     {
-        return std::make_tuple(con.ax, con.ay, con.az, con.bx, con.by, con.bz);
+        return box_bounds(con.ax, con.ay, con.az, con.bx, con.by, con.bz);
     };
 
     auto __cxxwrap_bounds_triclinic = [] (auto &con)
     {
-        return std::make_tuple(con.bx, con.bxy, con.by, con.bxz, con.byz, con.bz);
+        return box_bounds(con.bx, con.bxy, con.by, con.bxz, con.byz, con.bz);
     };
 
     auto __cxxwrap_periodic = [] (auto &con)
     {
-        return std::make_tuple(con.xperiodic, con.yperiodic, con.zperiodic);
+        return pbc(con.xperiodic, con.yperiodic, con.zperiodic);
     };
 
     auto __cxxwrap_point_inside = [] (auto &w, double x, double y, double z) 
@@ -87,12 +87,24 @@ void export_containers_methods(jlcxx::Module& mod)
         return con.compute_cell(vc, vl);
     };
 
+    auto __cxxwrap_compute_cell_by_inds = [] (voronoicell_neighbor& vc, auto& con, int ijk, int q)
+    {
+        return con.compute_cell(vc, ijk, q);
+    };
+
     auto __cxxwrap_find_voronoi_cell = [](auto& con, double x, double y, double z)
     {
-        int pid;
         double rx, ry, rz;
+        int pid;
         bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);
-        return std::make_tuple(rx, ry, rz, pid, found);
+        if (found)
+        {
+            return particle_info(rx, ry, rz, 0.5, pid);
+        }
+        else
+        {
+            return particle_info(0.0, 0.0, 0.0, -1.0, -2147483648);
+        }
     };
 
     auto __cxxwrap_compute_ghost_cell = [](voronoicell_neighbor &vc, auto& con, double x, double y, double z)
@@ -119,13 +131,13 @@ void export_containers_methods(jlcxx::Module& mod)
     // Class Container
     mod.method(
         "__cxxwrap_bounds",
-        static_cast<std::tuple<double,double,double,double,double,double> (*)(container&)>(
+        static_cast<box_bounds (*)(container&)>(
             __cxxwrap_bounds
         )
     );
     mod.method(
         "__cxxwrap_periodic",
-        static_cast<std::tuple<bool,bool,bool> (*)(container&)>(
+        static_cast<pbc (*)(container&)>(
             __cxxwrap_periodic
         )
     );
@@ -275,7 +287,7 @@ void export_containers_methods(jlcxx::Module& mod)
     );
     mod.method(
         "__cxxwrap_find_voronoi_cell",
-        static_cast<std::tuple<double, double, double, int, bool> (*)(container&, double, double, double)>(
+        static_cast<particle_info (*)(container&, double, double, double)>(
             __cxxwrap_find_voronoi_cell
         )
     );
@@ -295,6 +307,12 @@ void export_containers_methods(jlcxx::Module& mod)
         "__cxxwrap_compute_cell!",
         static_cast<bool (*)(voronoicell_neighbor&, container&, c_loop_subset&)>(
             __cxxwrap_compute_cell
+        )
+    );
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        static_cast<bool (*)(voronoicell_neighbor&, container&, int, int)>(
+            __cxxwrap_compute_cell_by_inds
         )
     );
     mod.method(
@@ -337,13 +355,13 @@ void export_containers_methods(jlcxx::Module& mod)
     // Class Container Poly
     mod.method(
         "__cxxwrap_bounds",
-        static_cast<std::tuple<double,double,double,double,double,double> (*)(container_poly&)>(
+        static_cast<box_bounds (*)(container_poly&)>(
             __cxxwrap_bounds
         )
     );
     mod.method(
         "__cxxwrap_periodic",
-        static_cast<std::tuple<bool,bool,bool> (*)(container_poly&)>(
+        static_cast<pbc (*)(container_poly&)>(
             __cxxwrap_periodic
         )
     );
@@ -493,7 +511,7 @@ void export_containers_methods(jlcxx::Module& mod)
     );
     mod.method(
         "__cxxwrap_find_voronoi_cell",
-        static_cast<std::tuple<double, double, double, int, bool> (*)(container_poly&, double, double, double)>(
+        static_cast<particle_info (*)(container_poly&, double, double, double)>(
             __cxxwrap_find_voronoi_cell
         )
     );
@@ -513,6 +531,12 @@ void export_containers_methods(jlcxx::Module& mod)
         "__cxxwrap_compute_cell!",
         static_cast<bool (*)(voronoicell_neighbor&, container_poly&, c_loop_subset&)>(
             __cxxwrap_compute_cell
+        )
+    );
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        static_cast<bool (*)(voronoicell_neighbor&, container_poly&, int, int)>(
+            __cxxwrap_compute_cell_by_inds
         )
     );
     mod.method(
@@ -577,7 +601,7 @@ void export_containers_methods(jlcxx::Module& mod)
 
     mod.method(
         "__cxxwrap_bounds",
-        static_cast<std::tuple<double,double,double,double,double,double> (*)(container_periodic&)>(
+        static_cast<box_bounds (*)(container_periodic&)>(
             __cxxwrap_bounds_triclinic
         )
     );
@@ -691,7 +715,7 @@ void export_containers_methods(jlcxx::Module& mod)
     );
     mod.method(
         "__cxxwrap_find_voronoi_cell",
-        static_cast<std::tuple<double, double, double, int, bool> (*)(container_periodic&, double, double, double)>(
+        static_cast<particle_info (*)(container_periodic&, double, double, double)>(
             __cxxwrap_find_voronoi_cell
         )
     );
@@ -707,12 +731,17 @@ void export_containers_methods(jlcxx::Module& mod)
             __cxxwrap_compute_cell
         )
     );
-
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        static_cast<bool (*)(voronoicell_neighbor&, container_periodic&, int, int)>(
+            __cxxwrap_compute_cell_by_inds
+        )
+    );
     // Class Container Periodic Poly
 
     mod.method(
         "__cxxwrap_bounds",
-        static_cast<std::tuple<double,double,double,double,double,double> (*)(container_periodic_poly&)>(
+        static_cast<box_bounds (*)(container_periodic_poly&)>(
             __cxxwrap_bounds_triclinic
         )
     );
@@ -826,7 +855,7 @@ void export_containers_methods(jlcxx::Module& mod)
     );
     mod.method(
         "__cxxwrap_find_voronoi_cell",
-        static_cast<std::tuple<double, double, double, int, bool> (*)(container_periodic_poly&, double, double, double)>(
+        static_cast<particle_info (*)(container_periodic_poly&, double, double, double)>(
             __cxxwrap_find_voronoi_cell
         )
     );
@@ -842,7 +871,12 @@ void export_containers_methods(jlcxx::Module& mod)
             __cxxwrap_compute_cell
         )
     );
-
+    mod.method(
+        "__cxxwrap_compute_cell!",
+        static_cast<bool (*)(voronoicell_neighbor&, container_periodic_poly&, int, int)>(
+            __cxxwrap_compute_cell_by_inds
+        )
+    );
     mod.method(
         "__cxxwrap_compute_ghost_cell!",
         static_cast<bool (*)(voronoicell_neighbor&, container&, double, double, double)>(

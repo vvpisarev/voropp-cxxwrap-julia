@@ -128,12 +128,12 @@ void export_voronoicell_methods(jlcxx::Module& mod)
     );
     mod.method(
         "__cxxwrap_centroid",
-        static_cast<std::tuple<double,double,double> (*)(voronoicell_neighbor&)>(
+        static_cast<vec3d (*)(voronoicell_neighbor&)>(
             [] (voronoicell_neighbor& v)
             {
-                double x, y, z;
-                v.centroid(x, y, z);
-                return std::make_tuple(x, y, z);
+                vec3d rc;
+                v.centroid(rc.x, rc.y, rc.z);
+                return rc;
             }
         )
     );

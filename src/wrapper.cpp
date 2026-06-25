@@ -1,5 +1,4 @@
 #include "jlcxx/jlcxx.hpp"
-#include "jlcxx/tuple.hpp"
 #include "jlcxx/stl.hpp"
 #include "voro++.hh"
 
@@ -25,6 +24,28 @@
 // int get_particle_id(voro::container& con, int i, int j) {
 //     return con.id[i][j];
 // }
+
+struct box_bounds {
+    double ax, ay, az, bx, by, bz;
+};
+
+struct pbc {
+    bool px, py, pz;
+};
+
+struct vec3d {
+    double x, y, z;
+};
+
+struct particle_info {
+    double x, y, z, r;
+    int pid;
+};
+
+struct loop_indices {
+    int i, j, k, ijk, q;
+};
+
 #include "containers.cpp"
 #include "loops.cpp"
 #include "cell.cpp"
@@ -33,6 +54,11 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 {
     using namespace voro;
 
+    mod.map_type<box_bounds>("CxxBoxBounds");
+    mod.map_type<pbc>("CxxPBC");
+    mod.map_type<vec3d>("CxxVec3D");
+    mod.map_type<particle_info>("CxxParticleInfo");
+    mod.map_type<loop_indices>("CxxLoopIndices");
     // Class Container
     auto class_container = mod.add_type<container>(
         "Container", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
