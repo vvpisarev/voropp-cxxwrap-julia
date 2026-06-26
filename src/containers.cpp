@@ -6,17 +6,20 @@ void export_containers_methods(jlcxx::Module& mod)
     
     auto __cxxwrap_bounds = [] (auto &con)
     {
-        return box_bounds(con.ax, con.ay, con.az, con.bx, con.by, con.bz);
+        box_bounds box = {con.ax, con.ay, con.az, con.bx, con.by, con.bz};
+        return box;
     };
 
     auto __cxxwrap_bounds_triclinic = [] (auto &con)
     {
-        return box_bounds(con.bx, con.bxy, con.by, con.bxz, con.byz, con.bz);
+        box_bounds box = {con.bx, con.bxy, con.by, con.bxz, con.byz, con.bz};
+        return box;
     };
 
     auto __cxxwrap_periodic = [] (auto &con)
     {
-        return pbc(con.xperiodic, con.yperiodic, con.zperiodic);
+        pbc p = {con.xperiodic, con.yperiodic, con.zperiodic};
+        return p;
     };
 
     auto __cxxwrap_point_inside = [] (auto &w, double x, double y, double z) 
@@ -94,17 +97,18 @@ void export_containers_methods(jlcxx::Module& mod)
 
     auto __cxxwrap_find_voronoi_cell = [](auto& con, double x, double y, double z)
     {
-        double rx, ry, rz;
-        int pid;
-        bool found = con.find_voronoi_cell(x, y, z, rx, ry, rz, pid);
+        particle_info pinfo;
+        bool found = con.find_voronoi_cell(x, y, z, pinfo.x, pinfo.y, pinfo.z, pinfo.pid);
         if (found)
         {
-            return particle_info(rx, ry, rz, 0.5, pid);
+            pinfo.r = 0.5;
         }
         else
         {
-            return particle_info(0.0, 0.0, 0.0, -1.0, -2147483648);
+            pinfo.r = -1.0;
+            pinfo.pid = (int)(1) << 31;
         }
+        return pinfo;
     };
 
     auto __cxxwrap_compute_ghost_cell = [](voronoicell_neighbor &vc, auto& con, double x, double y, double z)

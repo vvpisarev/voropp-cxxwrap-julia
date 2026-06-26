@@ -25,7 +25,8 @@
 //     return con.id[i][j];
 // }
 
-struct box_bounds {
+struct box_bounds
+{
     double ax;
     double ay;
     double az;
@@ -34,19 +35,22 @@ struct box_bounds {
     double bz;
 };
 
-struct pbc {
+struct pbc
+{
     bool px;
     bool py;
     bool pz;
 };
 
-struct vec3d {
+struct vec3d
+{
     double x;
     double y;
     double z;
 };
 
-struct particle_info {
+struct particle_info
+{
     double x;
     double y;
     double z;
@@ -54,7 +58,8 @@ struct particle_info {
     int pid;
 };
 
-struct loop_indices {
+struct loop_indices
+{
     int i;
     int j;
     int k;
@@ -77,34 +82,34 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
     mod.map_type<loop_indices>("CxxLoopIndices");
     // Class Container
     auto class_container = mod.add_type<container>(
-        "Container", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+        "Container", jlcxx::julia_type("AbstractContainer")
     )
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
     ;
 
     // Class Container Poly
     auto class_container_poly = mod.add_type<container_poly>(
-        "ContainerPoly", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+        "ContainerPoly", jlcxx::julia_type("AbstractContainer")
     )
         .constructor<double, double, double, double, double, double, int, int, int, bool, bool, bool, int>()
     ;
 
     // Class Containter Periodic
     auto class_container_periodic = mod.add_type<container_periodic>(
-        "ContainerTriclinic", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+        "ContainerTriclinic", jlcxx::julia_type("AbstractContainer")
     )
         .constructor<double, double, double, double, double, double, int, int, int, int>()
     ;
 
     auto class_container_periodic_poly = mod.add_type<container_periodic_poly>(
-        "ContainerTriclinicPoly", jlcxx::julia_type("AbstractContainer", "VoroPlusPlus")
+        "ContainerTriclinicPoly", jlcxx::julia_type("AbstractContainer")
     )
         .constructor<double, double, double, double, double, double, int, int, int, int>()
     ;
 
     // Class VoronoiCell
     auto class_voronoicell_neighbor = mod.add_type<voronoicell_neighbor>(
-        "VoronoiCell", jlcxx::julia_type("AbstractVoronoiCell", "VoroPlusPlus")
+        "VoronoiCell", jlcxx::julia_type("AbstractVoronoiCell")
     )
         .constructor<>()
         .constructor<double>()
@@ -114,7 +119,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     // Class Particle Order
     auto class_particle_order = mod.add_type<particle_order>(
-        "InsertionOrder",  jlcxx::julia_type("ContainerIterationOrder", "VoroPlusPlus")
+        "InsertionOrder",  jlcxx::julia_type("ContainerIterationOrder")
     )
         .constructor<>()
     ;
@@ -149,28 +154,28 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
     // Class Wall   
     auto class_wall_sphere = mod.add_type<wall_sphere>(
-        "WallSphere", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
+        "WallSphere", jlcxx::julia_type("AbstractWall")
     )
         .constructor<double, double, double, double>()
         .constructor<double, double, double, double, int>()
     ;
 
     auto class_wall_cylinder = mod.add_type<wall_cylinder>(
-        "WallCylinder", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
+        "WallCylinder", jlcxx::julia_type("AbstractWall")
     )
         .constructor<double, double, double, double, double, double, double, int>()
         .constructor<double, double, double, double, double, double, double>()
     ;
 
     auto class_wall_cone = mod.add_type<wall_cone>(
-        "WallCone", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
+        "WallCone", jlcxx::julia_type("AbstractWall")
     )
         .constructor<double, double, double, double, double, double, double, int>()
         .constructor<double, double, double, double, double, double, double>()
     ;
 
     auto class_wall_plane = mod.add_type<wall_plane>(
-        "WallPlane", jlcxx::julia_type("AbstractWall", "VoroPlusPlus")
+        "WallPlane", jlcxx::julia_type("AbstractWall")
     )
         .constructor<double, double, double, double, int>()
         .constructor<double, double, double, double>()

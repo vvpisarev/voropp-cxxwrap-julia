@@ -8,22 +8,22 @@ void export_loops_methods(jlcxx::Module& mod)
     auto __cxxwrap_inc = [] (auto& cl) { return cl.inc(); };
     auto __cxxwrap_pos = [] (auto &cl) 
         {
-            double x, y, z;
-            cl.pos(x, y, z);
-            return vec3d(x, y, z);
+            vec3d v;
+            cl.pos(v.x, v.y, v.z);
+            return v;
         };
 
     auto __cxxwrap_particle_info = [] (auto &cl)
         {
-            int pid;
-            double x, y, z, r;
-            cl.pos(pid, x, y, z, r);
-            return particle_info(x, y, z, r, pid);
+            particle_info pinfo;
+            cl.pos(pinfo.pid, pinfo.x, pinfo.y, pinfo.z, pinfo.r);
+            return pinfo;
         };
 
     auto __cxxwrap_loop_state = [] (auto &cl)
         {
-            return loop_indices(cl.i, cl.j, cl.k, cl.ijk, cl.q);
+            loop_indices inds = {cl.i, cl.j, cl.k, cl.ijk, cl.q};
+            return inds;
         };
 
     auto __cxxwrap_restore_loop_state = [] (auto &cl, int i, int j, int k, int ijk, int q)
